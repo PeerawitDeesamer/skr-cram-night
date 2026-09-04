@@ -1,0 +1,482 @@
+/* ============================================================
+   สมดุลเคมี — shared lesson stylesheet
+   Tufte-inspired: generous margins, sidenotes, restrained colour.
+   ============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Sarabun:ital,wght@0,300;0,400;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap');
+
+:root{
+  --ink:#1a1a18; --ink-soft:#55524c; --ink-faint:#8a8680;
+  --paper:#fdfcf8; --rule:#e0dcd2; --panel:#f5f2ea;
+  --accent:#8a2f1e;      /* ชาด — หัวข้อ, เน้น */
+  --fwd:#1f6f5c;         /* เขียว — ไปข้างหน้า / ถูก */
+  --rev:#a8621c;         /* ส้ม — ย้อนกลับ */
+  --wrong:#a3232b;
+  --measure:38rem;
+}
+*{box-sizing:border-box}
+html{font-size:17px;-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:'Sarabun',-apple-system,sans-serif;
+  font-weight:400; line-height:1.75; letter-spacing:.005em;
+}
+.wrap{max-width:var(--measure); margin:0 auto; padding:3.5rem 1.5rem 6rem}
+
+/* ---------- masthead ---------- */
+.eyebrow{
+  font-size:.72rem; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--ink-faint); font-weight:600; margin:0 0 .6rem;
+}
+h1{
+  font-size:2.05rem; line-height:1.25; font-weight:700;
+  margin:0 0 .5rem; letter-spacing:-.01em;
+}
+.deck{color:var(--ink-soft); font-size:1.02rem; margin:0 0 1.2rem}
+.meta{
+  display:flex; flex-wrap:wrap; gap:.4rem .5rem; align-items:center;
+  font-size:.78rem; color:var(--ink-faint);
+  border-top:1px solid var(--rule); border-bottom:1px solid var(--rule);
+  padding:.65rem 0; margin-bottom:2.5rem;
+}
+.tag{
+  background:var(--panel); border:1px solid var(--rule); border-radius:2px;
+  padding:.1rem .45rem; font-size:.74rem; color:var(--ink-soft);
+}
+
+h2{
+  font-size:1.28rem; font-weight:700; margin:3rem 0 .8rem;
+  padding-bottom:.35rem; border-bottom:2px solid var(--ink);
+  display:flex; align-items:baseline; gap:.55rem;
+}
+h2 .n{
+  font-family:'IBM Plex Mono',monospace; font-size:.85rem;
+  color:var(--accent); font-weight:600; flex:none;
+}
+h3{font-size:1.03rem; font-weight:700; margin:2rem 0 .5rem; color:var(--accent)}
+p{margin:0 0 1rem}
+ul,ol{margin:0 0 1.1rem; padding-left:1.3rem}
+li{margin-bottom:.35rem}
+strong{font-weight:700}
+em{font-style:italic; color:var(--ink-soft)}
+a{color:var(--accent); text-decoration:none; border-bottom:1px solid rgba(138,47,30,.32)}
+a:hover{border-bottom-color:var(--accent)}
+code,.mono,.chem{font-family:'IBM Plex Mono',monospace; font-size:.92em}
+sub,sup{font-size:.7em; line-height:0}
+
+/* ---------- boxes ---------- */
+.callout{
+  background:var(--panel); border-left:3px solid var(--accent);
+  padding:1rem 1.15rem; margin:1.6rem 0; border-radius:0 3px 3px 0;
+}
+.callout .lbl{
+  font-size:.7rem; letter-spacing:.13em; text-transform:uppercase;
+  font-weight:700; color:var(--accent); display:block; margin-bottom:.35rem;
+}
+.callout p:last-child{margin-bottom:0}
+.callout.trap{border-left-color:var(--wrong); background:#fbf1f0}
+.callout.trap .lbl{color:var(--wrong)}
+.callout.key{border-left-color:var(--fwd); background:#eef5f2}
+.callout.key .lbl{color:var(--fwd)}
+
+/* the one thing to remember */
+.bigidea{
+  border:2px solid var(--ink); padding:1.3rem 1.3rem 1.1rem;
+  margin:2rem 0; background:#fff; text-align:center; border-radius:3px;
+}
+.bigidea .lbl{
+  font-size:.68rem; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--ink-faint); font-weight:700; display:block; margin-bottom:.6rem;
+}
+.bigidea .stmt{font-size:1.12rem; font-weight:700; line-height:1.5}
+
+/* ---------- formula display ---------- */
+.formula{
+  text-align:center; margin:1.5rem 0; padding:1.1rem .8rem;
+  background:#fff; border:1px solid var(--rule); border-radius:3px;
+  overflow-x:auto;
+}
+.frac{display:inline-flex; flex-direction:column; vertical-align:middle;
+  text-align:center; margin:0 .18em; font-family:'IBM Plex Mono',monospace}
+.frac .num{border-bottom:1.5px solid var(--ink); padding:0 .35em .12em}
+.frac .den{padding:.12em .35em 0}
+.eq{font-family:'IBM Plex Mono',monospace; font-size:1.05rem; white-space:nowrap}
+
+/* ---------- tables ---------- */
+table{border-collapse:collapse; width:100%; margin:1.4rem 0; font-size:.92rem}
+.tablewrap{overflow-x:auto; margin:1.4rem 0}
+.tablewrap table{margin:0}
+th,td{padding:.5rem .65rem; text-align:left; border-bottom:1px solid var(--rule)}
+th{
+  font-size:.74rem; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--ink-soft); font-weight:600; border-bottom:1.5px solid var(--ink);
+}
+tbody tr:last-child td{border-bottom:1.5px solid var(--ink)}
+td.num,th.num{text-align:right; font-family:'IBM Plex Mono',monospace}
+.ice td:first-child{font-weight:700; font-family:'IBM Plex Mono',monospace; color:var(--accent)}
+.up{color:var(--fwd); font-weight:600}
+.down{color:var(--rev); font-weight:600}
+.same{color:var(--ink-faint)}
+
+/* ---------- worked example ---------- */
+.worked{
+  border:1px solid var(--rule); border-radius:3px; margin:1.8rem 0;
+  background:#fff; overflow:hidden;
+}
+.worked > .hd{
+  background:var(--panel); padding:.6rem .95rem; font-weight:700; font-size:.9rem;
+  border-bottom:1px solid var(--rule);
+}
+.worked > .bd{padding:1rem .95rem .3rem}
+.step{display:flex; gap:.75rem; margin-bottom:.9rem}
+.step .k{
+  flex:none; width:1.5rem; height:1.5rem; border-radius:50%;
+  background:var(--ink); color:#fff; font-size:.75rem; font-weight:700;
+  display:flex; align-items:center; justify-content:center; margin-top:.15rem;
+  font-family:'IBM Plex Mono',monospace;
+}
+.step .v{flex:1; min-width:0}
+.step .v p{margin-bottom:.4rem}
+
+/* ---------- quiz ---------- */
+.quiz{
+  border:1px solid var(--rule); border-left:3px solid var(--ink);
+  background:#fff; border-radius:0 3px 3px 0; padding:1.1rem 1.15rem;
+  margin:1.5rem 0;
+}
+.quiz .qlbl{
+  font-size:.68rem; letter-spacing:.14em; text-transform:uppercase;
+  font-weight:700; color:var(--ink-faint); margin-bottom:.5rem;
+}
+.quiz .qtext{font-weight:600; margin-bottom:.9rem}
+.quiz .qtext p:last-child{margin-bottom:0}
+.opts{display:flex; flex-direction:column; gap:.4rem}
+.opt{
+  display:flex; gap:.6rem; align-items:flex-start; width:100%; text-align:left;
+  font:inherit; font-size:.94rem; color:var(--ink); cursor:pointer;
+  background:var(--paper); border:1px solid var(--rule); border-radius:3px;
+  padding:.5rem .7rem; transition:background .12s,border-color .12s;
+}
+.opt:hover:not(:disabled){background:var(--panel); border-color:var(--ink-faint)}
+.opt .mk{
+  flex:none; font-family:'IBM Plex Mono',monospace; font-weight:600;
+  font-size:.8rem; color:var(--ink-faint); margin-top:.1rem; width:1rem;
+}
+.opt:disabled{cursor:default}
+.opt.correct{background:#eaf4f0; border-color:var(--fwd)}
+.opt.correct .mk{color:var(--fwd)}
+.opt.wrong{background:#fbeeee; border-color:var(--wrong)}
+.opt.wrong .mk{color:var(--wrong)}
+.opt.dim{opacity:.5}
+
+.fibrow{display:flex; gap:.5rem; align-items:center; flex-wrap:wrap}
+.fibrow input{
+  font:inherit; font-family:'IBM Plex Mono',monospace; font-size:.95rem;
+  padding:.45rem .6rem; border:1px solid var(--rule); border-radius:3px;
+  background:var(--paper); color:var(--ink); width:11rem; min-width:0;
+}
+.fibrow input:focus{outline:2px solid var(--accent); outline-offset:1px; border-color:var(--accent)}
+.fibrow input.correct{border-color:var(--fwd); background:#eaf4f0}
+.fibrow input.wrong{border-color:var(--wrong); background:#fbeeee}
+.fibrow .unit{color:var(--ink-faint); font-size:.88rem}
+.btn{
+  font:inherit; font-size:.86rem; font-weight:600; cursor:pointer;
+  background:var(--ink); color:#fff; border:1px solid var(--ink);
+  border-radius:3px; padding:.45rem .9rem;
+}
+.btn:hover{background:#000}
+.btn.ghost{background:transparent; color:var(--ink-soft); border-color:var(--rule)}
+.btn.ghost:hover{background:var(--panel); color:var(--ink)}
+
+.fb{margin-top:.85rem; padding-top:.8rem; border-top:1px dashed var(--rule); font-size:.92rem}
+.fb[hidden]{display:none!important}
+.fb .verdict{font-weight:700; margin-bottom:.3rem}
+.fb.ok .verdict{color:var(--fwd)}
+.fb.no .verdict{color:var(--wrong)}
+.fb p:last-child{margin-bottom:0}
+
+.score{
+  position:sticky; bottom:0; margin-top:2.5rem;
+  background:var(--ink); color:#fff; border-radius:3px;
+  padding:.6rem .95rem; font-size:.85rem; display:flex;
+  justify-content:space-between; align-items:center; gap:1rem;
+}
+.score .bar{flex:1; height:5px; background:rgba(255,255,255,.22); border-radius:3px; overflow:hidden}
+.score .bar > i{display:block; height:100%; width:0; background:#fff; transition:width .3s}
+.score .txt{font-family:'IBM Plex Mono',monospace; flex:none}
+
+/* ---------- footer / nav ---------- */
+.ask{
+  border:1px dashed var(--ink-faint); border-radius:3px;
+  padding:1rem 1.15rem; margin:2.5rem 0 1.5rem; background:var(--panel);
+  font-size:.94rem;
+}
+.ask .lbl{font-weight:700; display:block; margin-bottom:.3rem}
+.nav{
+  display:flex; flex-wrap:wrap; gap:.5rem; margin-top:2rem;
+  padding-top:1.2rem; border-top:1px solid var(--rule);
+}
+.nav a{
+  font-size:.84rem; padding:.4rem .7rem; border:1px solid var(--rule);
+  border-radius:3px; color:var(--ink-soft); border-bottom:1px solid var(--rule);
+}
+.nav a:hover{background:var(--panel); color:var(--ink); border-color:var(--ink-faint)}
+.src{font-size:.86rem; color:var(--ink-soft); margin-top:2rem}
+
+/* ---------- print ---------- */
+@media print{
+  :root{--paper:#fff}
+  body{font-size:11.5pt}
+  .wrap{max-width:none; padding:0}
+  .quiz,.worked,.callout,.bigidea{break-inside:avoid}
+  .score,.btn{display:none!important}
+  .fb{display:block!important}
+  .fb[hidden]{display:block!important}
+  a{border-bottom:none; color:var(--ink)}
+  h2{break-after:avoid}
+}
+
+/* ---------- concentration–time figures (graph.js) ---------- */
+figure.cgraph{
+  margin:1.6rem 0; padding:.9rem .7rem .5rem; background:#fff;
+  border:1px solid var(--rule); border-radius:3px;
+}
+figure.cgraph svg{display:block; width:100%; height:auto}
+figure.cgraph figcaption{
+  font-size:.84rem; color:var(--ink-soft); margin-top:.5rem;
+  padding-top:.5rem; border-top:1px solid var(--rule); line-height:1.6;
+}
+@media print{ figure.cgraph{break-inside:avoid} }
+
+/* ============================================================
+   COMPATIBILITY LAYER
+   Everything below exists so that pages written against the older
+   per-subject stylesheets keep rendering unchanged after the merge.
+   New lessons should use the classes above; nothing here is deprecated,
+   but nothing here is required either.
+   ============================================================ */
+
+:root{
+  /* Bio-era font roles */
+  --thai:  'Sarabun', -apple-system, sans-serif;
+  --serif: 'EB Garamond', 'Sarabun', Georgia, serif;
+  --mono:  'IBM Plex Mono', ui-monospace, monospace;
+  /* Bio-era semantic colours, remapped onto the shared palette.
+     Kept by name because the Bio lessons reference them inline. */
+  --auxin:     #1f6f8b;
+  --cytokinin: #7a4b93;
+  --gibb:      var(--fwd);
+  --aba:       #b06010;
+  --ethylene:  var(--wrong);
+}
+
+/* Chemistry-era pages centre their content with .wrap; Biology-era pages put
+   it straight in <body>. Give the second kind the same measure and margins so
+   one stylesheet serves both without editing eight files. */
+body:not(:has(.wrap)){
+  max-width:var(--measure);
+  margin:0 auto;
+  padding:3.5rem 1.5rem 6rem;
+}
+* { box-sizing: border-box;}
+h1 {
+  font-family: var(--serif);
+  font-size: 2.4rem;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  margin: 0 0 0.5rem;}
+.subtitle {
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  font-style: italic;
+  color: var(--ink-soft);
+  margin: 0 0 2rem;}
+.masthead { border-bottom: 1px solid var(--rule); padding-bottom: 1.75rem; margin-bottom: 2.5rem;}
+h2 {
+  font-family: var(--serif);
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin: 3.5rem 0 1rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--rule);}
+h3 {
+  font-family: var(--serif);
+  font-size: 1.22rem;
+  font-weight: 600;
+  margin: 2.25rem 0 0.6rem;}
+.term {
+  font-family: var(--serif);
+  font-weight: 600;
+  font-style: italic;
+  color: var(--accent);
+  white-space: nowrap;}
+mark { background: #fdf0b8; color: inherit; padding: 0 0.15em; border-radius: 2px;}
+.callout > :last-child { margin-bottom: 0;}
+.callout .label {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  display: block;
+  margin-bottom: 0.4rem;}
+.callout.source { border-left-color: var(--ink-faint); background: transparent;}
+thead th {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  text-align: left;
+  border-bottom: 1.5px solid var(--ink);
+  padding: 0 0.7rem 0.5rem;
+  font-weight: 600;}
+tbody td { padding: 0.7rem; border-bottom: 1px solid var(--rule); vertical-align: top;}
+tbody tr:hover { background: #f7f4ec;}
+.table-wrap { overflow-x: auto;}
+.chip {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 0.12rem 0.5rem;
+  border-radius: 999px;
+  color: #fff;
+  white-space: nowrap;}
+.chip.auxin { background: var(--auxin);}
+.chip.cytokinin { background: var(--cytokinin);}
+.chip.gibb { background: var(--gibb);}
+.chip.aba { background: var(--aba);}
+.chip.ethylene { background: var(--ethylene);}
+figure { margin: 2rem 0;}
+figure svg { display: block; max-width: 100%; height: auto; margin: 0 auto;}
+figcaption {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 0.92rem;
+  color: var(--ink-soft);
+  text-align: center;
+  margin-top: 0.75rem;}
+ol.steps { counter-reset: s; list-style: none; padding: 0; margin: 1.5rem 0;}
+ol.steps li {
+  counter-increment: s;
+  position: relative;
+  padding-left: 2.6rem;
+  margin-bottom: 0.9rem;}
+ol.steps li::before {
+  content: counter(s);
+  position: absolute; left: 0; top: 0.15rem;
+  width: 1.75rem; height: 1.75rem;
+  background: var(--accent); color: #fff;
+  border-radius: 50%;
+  font-family: var(--mono); font-size: 0.8rem; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;}
+.nav ul { list-style: none; padding: 0; margin: 0.5rem 0 0;}
+.nav li { margin-bottom: 0.35rem;}
+} @media (max-width: 480px) {
+  body { padding: 2.5rem 1rem 4rem; font-size: 1rem;}
+} /* ================= Quiz component (see quiz.js) ================= */ .quiz {
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 1.5rem;
+  margin: 2rem 0;}
+.q-legacy .qhead {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 0.9rem;
+  display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;}
+.q-legacy .qtext { font-weight: 600; margin-bottom: 1rem;}
+.q-legacy .opts { display: grid; gap: 0.5rem;}
+.q-legacy button.opt {
+  font-family: inherit;
+  font-size: 0.97rem;
+  line-height: 1.5;
+  text-align: left;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 0.65rem 0.9rem;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+  color: var(--ink);}
+.q-legacy button.opt:hover:not(:disabled) { background: #fff; border-color: var(--ink-faint);}
+.q-legacy button.opt:disabled { cursor: default;}
+.q-legacy button.opt.correct { background: #e4f2e6; border-color: var(--gibb);     font-weight: 600;}
+.q-legacy button.opt.wrong { background: #fbe6e6; border-color: var(--ethylene);}
+.q-legacy button.opt.dimmed { opacity: 0.5;}
+.q-legacy .fb {
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px dashed var(--rule);
+  font-size: 0.95rem;}
+.q-legacy .fb.hidden { display: none;}
+.q-legacy .fb .verdict { font-weight: 600; display: block; margin-bottom: 0.3rem;}
+.q-legacy .fb.ok .verdict { color: var(--gibb);}
+.q-legacy .fb.no .verdict { color: var(--ethylene);}
+.q-legacy .score {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--rule);}
+.q-legacy .weak {
+  margin-top: 0.9rem;
+  padding: 0.8rem 1rem;
+  background: #fbe6e6;
+  border-left: 3px solid var(--ethylene);
+  border-radius: 0 4px 4px 0;
+  font-family: var(--thai);}
+.q-legacy .weak-head {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ethylene);
+  display: block;
+  margin-bottom: 0.35rem;}
+.q-legacy .weak ul { margin: 0; padding-left: 1.1rem; font-size: 0.92rem;}
+.q-legacy .weak li { margin-bottom: 0.2rem;}
+.q-legacy .retry {
+  font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em;
+  text-transform: uppercase; background: none; border: 1px solid var(--rule);
+  border-radius: 3px; padding: 0.3rem 0.7rem; margin-left: 0.6rem;
+  cursor: pointer; color: var(--ink-soft);}
+.q-legacy .retry:hover { background: #fff; border-color: var(--ink-faint);}
+.recall { border: 1px solid var(--rule); border-radius: 6px; padding: 1.1rem 1.3rem; margin: 1.75rem 0; background: var(--paper);}
+.recall .prompt { font-weight: 600; margin-bottom: 0.5rem;}
+.recall .hint { font-size: 0.88rem; color: var(--ink-faint); font-style: italic;}
+.recall summary {
+  cursor: pointer; font-family: var(--mono); font-size: 0.72rem;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent);
+  margin-top: 0.75rem;}
+.recall summary::marker { color: var(--rule);}
+.recall details[open] summary { margin-bottom: 0.6rem;}
+
+/* --- additions used by the shared quiz engine --- */
+.btn.ghost{background:none; color:var(--ink-soft); border:1px solid var(--rule)}
+.btn.ghost:hover:not(:disabled){background:var(--panel); color:var(--ink)}
+.btn.ghost:disabled{opacity:.4; cursor:default}
+.hint{margin:.8rem 0; padding:.7rem .9rem; background:var(--panel);
+      border-left:3px solid var(--rev); border-radius:0 3px 3px 0; font-size:.94rem}
+.hint-head{display:block; font-size:.66rem; letter-spacing:.12em; text-transform:uppercase;
+      font-weight:700; color:var(--rev); margin-bottom:.25rem}
+.score .weak{margin-top:.9rem; padding:.7rem .9rem; background:#fbeceb;
+      border-left:3px solid var(--wrong); border-radius:0 3px 3px 0}
+.score .weak-head{display:block; font-size:.66rem; letter-spacing:.12em; text-transform:uppercase;
+      font-weight:700; color:var(--wrong); margin-bottom:.3rem}
+.score .weak ul{margin:0; padding-left:1.1rem; font-size:.9rem}
+.score .weak li{margin-bottom:.2rem}
+/* The "copy this into GoodNotes" block: the part of a lesson worth writing by hand. */
+.copy{border:1.5px solid var(--ink); border-radius:3px; padding:1rem 1.15rem 1.05rem;
+      margin:1.5rem 0; background:#fff}
+.copy-head{display:block; font-size:.68rem; letter-spacing:.14em; text-transform:uppercase;
+      font-weight:700; color:var(--ink); margin-bottom:.55rem}
+.copy ul,.copy ol{margin:.2rem 0; padding-left:1.2rem}
+.copy > :last-child{margin-bottom:0}
+@media print{ .copy{break-inside:avoid} }
