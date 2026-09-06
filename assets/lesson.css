@@ -374,7 +374,11 @@ ol.steps li::before {
   display: flex; align-items: center; justify-content: center;}
 .nav ul { list-style: none; padding: 0; margin: 0.5rem 0 0;}
 .nav li { margin-bottom: 0.35rem;}
-} @media (max-width: 480px) {
+/* A stray "}" sat here — the opening of some media query lost in the merge.
+   Parsers discard it, so nothing rendered wrong, but it left the file's braces
+   permanently unbalanced, which is the kind of thing that makes the NEXT edit
+   fail in a way nobody can explain. */
+@media (max-width: 480px) {
   body { padding: 2.5rem 1rem 4rem; font-size: 1rem;}
 } /* ================= Quiz component (see quiz.js) ================= */ .quiz {
   background: var(--panel);
@@ -480,3 +484,107 @@ ol.steps li::before {
 .copy ul,.copy ol{margin:.2rem 0; padding-left:1.2rem}
 .copy > :last-child{margin-bottom:0}
 @media print{ .copy{break-inside:avoid} }
+
+/* ============================================================
+   FIGURES — the teacher's own diagram, lifted onto the page
+   A science lesson made of Thai prose alone is one nobody finishes at 01:00.
+   Everything here assumes the picture is the point and the words are the
+   caption, not the other way round.
+   ============================================================ */
+
+figure.fig{
+  margin:1.8rem 0; padding:0; background:#fff;
+  border:1px solid var(--rule); border-radius:3px; overflow:hidden;
+}
+figure.fig > img,
+figure.fig > svg{
+  display:block; width:100%; height:auto; margin:0;
+  background:#fff;
+}
+figure.fig figcaption{
+  font-family:'Sarabun',-apple-system,sans-serif; font-style:normal;
+  text-align:left; font-size:.85rem; line-height:1.65; color:var(--ink-soft);
+  margin:0; padding:.7rem .9rem .75rem; border-top:1px solid var(--rule);
+  background:var(--panel);
+}
+/* The one sentence the figure exists to make. Put the exam-relevant claim here,
+   never a restatement of the title on the slide. */
+figure.fig figcaption b,
+figure.fig figcaption strong{color:var(--ink); font-weight:700}
+/* Where it came from — page in the sheet, or a licence for anything fetched. */
+figure.fig .figsrc{
+  display:block; margin-top:.35rem; font-size:.72rem; color:var(--ink-faint);
+}
+
+/* Break out of the 38rem measure when the diagram's own labels need the room.
+   Capped so it never runs off a phone. */
+figure.fig.wide{
+  width:min(52rem, calc(100vw - 3rem));
+  margin-left:50%; transform:translateX(-50%);
+}
+
+/* Two or three panels that are only meaningful side by side: before/after,
+   ปกติ vs ผิดปกติ, the same organ at three magnifications. */
+.figrow{
+  display:grid; gap:.9rem; margin:1.8rem 0;
+  grid-template-columns:repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+}
+/* Grid stretches cells to the tallest row; without this a short figure grows a
+   slab of empty white under its caption. */
+.figrow figure.fig{margin:0; align-self:start}
+.figrow figure.fig figcaption{font-size:.78rem; padding:.55rem .7rem .6rem}
+
+/* A figure inside a question. Capped in height so a tall diagram never pushes
+   the options off the bottom of the screen — an option nobody scrolls to is an
+   option nobody picks. */
+.quiz figure.fig{margin:1rem auto; width:fit-content; max-width:100%}
+.quiz figure.fig > img{max-height:min(58vh, 24rem); width:auto; max-width:100%}
+
+@media print{
+  figure.fig{break-inside:avoid}
+  figure.fig.wide{width:auto; margin-left:0; transform:none}
+  .figrow{break-inside:avoid}
+}
+@media (max-width:480px){
+  figure.fig.wide{width:auto; margin-left:0; transform:none}
+}
+
+/* ============================================================
+   WHERE — ชีววิทยา: กระบวนการนี้เกิดที่ไหน
+   ข้อสอบชีวะไทยถาม "เกิดที่ใด / หลั่งจากเซลล์ใด / ออกฤทธิ์ที่ใด" ซ้ำกว่าถามกลไก
+   ปล่อยให้ตำแหน่งกระจายอยู่ในย่อหน้า = ผู้เรียนอ่านจบแล้วยังตอบไม่ได้
+   บล็อกนี้บังคับให้ตอบเป็นช่อง ๆ ไม่ใช่หวังว่าจะมีอยู่ในเนื้อความ
+   ============================================================ */
+
+.where{
+  margin:1.4rem 0; padding:.85rem 1rem .9rem;
+  background:var(--panel); border-left:3px solid var(--fwd);
+  border-radius:0 3px 3px 0;
+}
+.where-head{
+  display:block; font-size:.66rem; letter-spacing:.12em; text-transform:uppercase;
+  font-weight:700; color:var(--fwd); margin-bottom:.5rem;
+}
+.where dl{
+  display:grid; grid-template-columns:auto 1fr; gap:.3rem .9rem;
+  margin:0; font-size:.94rem;
+}
+.where dt{
+  font-weight:700; color:var(--ink-soft); white-space:nowrap;
+  font-size:.82rem; padding-top:.12rem;
+}
+.where dd{margin:0; color:var(--ink)}
+/* The one row that is actually a question: made here, works there. */
+.where dd em{font-style:normal; color:var(--accent); font-weight:600}
+
+/* A location named mid-sentence, so prose and the .where block agree on wording. */
+.at{
+  font-weight:600; color:var(--fwd);
+  border-bottom:1px dotted var(--fwd); white-space:nowrap;
+}
+
+@media print{ .where{break-inside:avoid} }
+@media (max-width:480px){
+  .where dl{grid-template-columns:1fr; gap:.1rem}
+  .where dt{padding-top:.4rem}
+}

@@ -6,7 +6,9 @@
 #
 # What it guarantees:
 #   * python3 with pymupdf (read teacher PDFs) and sympy (verify every number)
-#   * ~/Documents/SKR/<Subject>/ exists for each subject in play
+#   * ~/Documents/SKR/<Subject>/ exists for each subject in play, with the
+#     lessons/fig/ folder every figure must live in (Safari will not load one
+#     that sits outside lessons/)
 #   * every workspace holds the CURRENT shared assets/lesson.css, assets/quiz.js
 #     and build.py — one library, fixed once, copied everywhere
 set -uo pipefail
@@ -48,7 +50,7 @@ for s in "${SUBJECTS[@]}"; do
   # and never fail the check because they are absent.
   if [[ ! -d "$ws" ]]; then
     if (( CHECK )); then note "$s — not created yet"; continue; fi
-    mkdir -p "$ws"/{lessons,reference,assets,learning-records}
+    mkdir -p "$ws"/{lessons/fig,reference,assets,learning-records,Slides}
     ok "$s created"
   fi
 

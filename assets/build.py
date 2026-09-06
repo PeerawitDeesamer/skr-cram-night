@@ -135,11 +135,19 @@ def main() -> int:
     js_path = ASSETS / "quiz.js"
     js = js_path.read_text(encoding="utf-8") if js_path.exists() else ""
 
+    # lessons/ and reference/ sit either at the workspace root, or one level
+    # down inside a per-topic folder (Biology/Digestion/lessons, ...) once a
+    # subject grows past a single topic. Scanning only the root shape left every
+    # Biology page frozen on whatever stylesheet was current the night it was
+    # written — the pages looked fine, so nothing ever said so.
     pages = sorted(
-        list((ROOT / "lessons").glob("*.html")) + list((ROOT / "reference").glob("*.html"))
+        set(ROOT.glob("lessons/*.html"))
+        | set(ROOT.glob("reference/*.html"))
+        | set(ROOT.glob("*/lessons/*.html"))
+        | set(ROOT.glob("*/reference/*.html"))
     )
     if not pages:
-        print("no pages found in lessons/ or reference/")
+        print("no pages found in lessons/ or reference/ (nor */lessons/)")
         return 1
 
     changed = []

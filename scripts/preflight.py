@@ -2,15 +2,16 @@
 """
 preflight — nothing is handed over until this passes.
 
-Four of these checks catch *silent* failures: the page looks fine on the screen
-you built it on and is broken on the one you study from. Mojibake Thai, a
-stylesheet Safari refused to load, a quiz whose engine never ran, a number
-nobody computed. Each has already cost this workspace real time, which is why
-they block rather than warn.
+These checks catch *silent* failures: the page looks fine on the screen you
+built it on and is broken on the one you study from. Mojibake Thai, a stylesheet
+Safari refused to load, a quiz whose engine never ran, a figure whose file is
+not there, a number nobody computed. Each has already cost this workspace real
+time, which is why they block rather than warn.
 
-Two more are warnings: citations and the eyeball list. They make the output
-better, they never make it broken, and at 23:00 the night before a test the
-right behaviour is to hand over imperfect files rather than no files.
+The rest are warnings: the figure quota, citations, alt text, the eyeball list.
+They make the output better, they never make it broken, and at 23:00 the night
+before a test the right behaviour is to hand over imperfect files rather than
+no files.
 
 Usage
 -----
@@ -89,6 +90,99 @@ def check_quiz(name, text):
             break
 
 
+# Bio and Chem lessons are read off a screen at 01:00; the pages made of prose
+# alone are the ones that get scrolled past. See docs/FIGURES.md for the quota.
+FIG_QUOTA = {"bio": 4, "chem": 3, "physics": 3, "math": 2}
+
+IMG_RE = re.compile(r'<img\b[^>]*>')
+SRC_RE = re.compile(r'\bsrc="([^"]+)"')
+
+
+SCRIPTY_RE = re.compile(r"<(script|style)\b.*?</\1>", re.DOTALL | re.IGNORECASE)
+FIGURE_RE = re.compile(r"<figure\b.*?</figure>", re.DOTALL | re.IGNORECASE)
+
+
+def count_figures(text):
+    """How many pictures the reader actually sees.
+
+    The inlined engines are stripped first — graph.js builds its SVG out of
+    string literals, and counting those would credit every page with a dozen
+    figures it does not have. A <figure> counts once whether it holds an <img>,
+    an inline <svg>, or an empty shell that graph.js fills at load."""
+    body = SCRIPTY_RE.sub("", text)
+    body, figures = FIGURE_RE.subn("", body)
+    loose = len(IMG_RE.findall(body)) + len(re.findall(r"<svg\b", body))
+    return figures + loose
+
+
+def check_images(path, name, text):
+    """A figure that does not load is worse than one that was never added: the
+    page still promises a diagram, and the caption still refers to it."""
+    text = SCRIPTY_RE.sub("", text)  # the inlined engines are code, not markup
+    for tag in IMG_RE.findall(text):
+        m = SRC_RE.search(tag)
+        if not m:
+            block(name, "an <img> with no src")
+            continue
+        src = m.group(1)
+        if src.startswith("data:"):
+            continue
+        if re.match(r"https?://", src):
+            block(name, f"hotlinks {src[:60]} — the page is read offline from "
+                        "file://; use figure.py fetch to bring it into fig/")
+            continue
+        if src.startswith("../"):
+            block(name, f'<img src="{src}"> reaches into a parent folder — '
+                        "Safari will not load it; move the file into lessons/fig/")
+            continue
+        target = (path.parent / src).resolve()
+        if not target.exists():
+            block(name, f"<img src=\"{src}\"> points at nothing")
+        if 'alt="' not in tag or re.search(r'alt="\s*"', tag):
+            warn(name, f"an <img> has no useful alt text ({src})")
+
+    for tag in re.findall(r"<svg\b[^>]*>", text):
+        if "viewBox" not in tag:
+            warn(name, "an inline <svg> has no viewBox — it will not scale to the column")
+        if re.search(r'\swidth="\d', tag):
+            warn(name, "an inline <svg> sets a px width — let the CSS size it")
+
+
+def check_figure_quota(name, text, subject):
+    want = FIG_QUOTA.get(subject)
+    if not want:
+        return
+    got = count_figures(text)
+    if got < want:
+        warn(name, f"{got} figure(s), {subject} wants {want} — "
+                   "a science lesson made of prose is one nobody finishes (docs/FIGURES.md)")
+
+
+WHERE_RE = re.compile(r'<div class="where".*?</div>', re.DOTALL)
+
+
+def check_where(name, text, subject):
+    """Biology only: a process the reader cannot place is a process they cannot
+    answer about. The Thai school paper asks "เกิดที่ใด" more often than it asks
+    how the mechanism works, and location scattered through prose reads fine and
+    tests badly."""
+    if subject != "bio":
+        return
+    body = SCRIPTY_RE.sub("", text)
+    blocks = WHERE_RE.findall(body)
+    if not blocks:
+        warn(name, 'no <div class="where"> — every process must say which organ, '
+                   "which part, made-where vs acts-where (docs/WHERE.md)")
+    for b in blocks:
+        if len(re.findall(r"<dt\b", b)) < 2:
+            warn(name, "a .where block has fewer than 2 slots filled — "
+                       "อวัยวะ and ส่วน/เซลล์ are the minimum")
+
+    if 'class="quiz"' in body and not re.search(r'data-tag="ตำแหน่ง-', body):
+        warn(name, 'no quiz tagged data-tag="ตำแหน่ง-…" — the location question is '
+                   "the one the reader thinks they can answer until asked")
+
+
 def check_citation(name, text):
     """Every lesson should be traceable back to the teacher's own sheet."""
     if re.search(r"(หน้า\s*\d+|ตย\.\s*\d|ตัวอย่าง\s*\d|แบบฝึกหัด|p\.\s*\d+)", text):
@@ -124,11 +218,18 @@ def main() -> int:
     a = ap.parse_args()
     root = a.root.resolve()
 
+    # lessons/ and reference/ sit either at the workspace root, or one level
+    # down inside a per-topic folder (Biology/Digestion/lessons, ...) once a
+    # subject grows past a single topic. Scan both shapes.
     pages = sorted(
-        list((root / "lessons").glob("*.html")) + list((root / "reference").glob("*.html"))
+        set(root.glob("lessons/*.html"))
+        | set(root.glob("reference/*.html"))
+        | set(root.glob("*/lessons/*.html"))
+        | set(root.glob("*/reference/*.html"))
     )
     if not pages:
-        print(f"error: no pages under {root}/lessons or {root}/reference")
+        print(f"error: no pages under {root}/lessons or {root}/reference "
+              f"(nor {root}/*/lessons)")
         return 1
 
     for p in pages:
@@ -137,6 +238,12 @@ def main() -> int:
         check_charset(name, text)
         check_parent_refs(name, text)
         check_quiz(name, text)
+        check_images(p, name, text)
+        # A glossary or a formula sheet is a lookup table; the quota is for lessons.
+        if "/lessons/" in f"/{name}":
+            check_figure_quota(name, text, a.subject.lower())
+        if "/lessons/" in f"/{name}":
+            check_where(name, text, a.subject.lower())
         check_citation(name, text)
 
     check_numbers(root, a.subject.lower())
@@ -153,12 +260,17 @@ def main() -> int:
     for p in pages:
         text = p.read_text(encoding="utf-8", errors="replace")
         why = []
-        if "<svg" in text or "<img" in text:
-            why.append("has a figure")
+        n_fig = count_figures(text)
+        if n_fig:
+            # No script can tell a crop of the right diagram from a crop of the
+            # one next to it, so every figure is on the human's list.
+            why.append(f"{n_fig} figure(s)")
         if 'data-type="reveal"' in text:
             why.append("worked solutions")
         if re.search(r"\\\(|\\\[|<sub>|<sup>", text):
             why.append("formulas")
+        if WHERE_RE.search(SCRIPTY_RE.sub("", text)):
+            why.append("location claims")
         if why:
             print(f"  · {p.relative_to(root)} — {', '.join(why)}")
 
