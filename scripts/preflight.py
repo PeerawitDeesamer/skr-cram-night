@@ -82,6 +82,13 @@ def check_quiz(name, text):
         if kind in ("mc", "fib") and "data-answer=" not in tag:
             block(name, f"a {kind} quiz has no data-answer — it can never be right")
 
+    # quiz.js reads dataset.shuffle off the .quiz container. Put it on .opts and
+    # nothing errors — the attribute is simply never seen, and the ordered
+    # options the author was protecting get scrambled anyway.
+    if re.search(r'<div class="opts"[^>]*data-shuffle', text):
+        warn(name, 'data-shuffle is on <div class="opts"> where the engine never '
+                   'reads it — move it onto the <div class="quiz"> tag')
+
     # Options are shuffled on load, so prose that names a letter is now wrong.
     for m in re.finditer(r'data-(?:ok|no)="([^"]*)"', text):
         if re.search(r"(?:ตัวเลือก|choice|option)\s*[A-D]\b", m.group(1)):
@@ -170,7 +177,12 @@ def check_where(name, text, subject):
         return
     body = SCRIPTY_RE.sub("", text)
     blocks = WHERE_RE.findall(body)
-    if not blocks:
+    # A page with no "คัดลงสมุด" block is not a lesson (กฎเหล็ก 5 makes that block
+    # mandatory in one) — it is a mock exam or a reference sheet. An exam must
+    # not carry a .where: that block exists to TELL the reader where things
+    # happen, which is exactly what the exam is asking them.
+    teaches = 'class="copy"' in body
+    if teaches and not blocks:
         warn(name, 'no <div class="where"> — every process must say which organ, '
                    "which part, made-where vs acts-where (docs/WHERE.md)")
     for b in blocks:
