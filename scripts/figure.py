@@ -369,8 +369,8 @@ def cmd_fetch(url: str, out: pathlib.Path, cite: str, trust: str) -> int:
         tmp.unlink(missing_ok=True)
         sys.exit(f"error: {final} served {ctype}, not an image")
 
-    head = tmp.read_bytes()[:512]
-    kind = next((k for sig, k in MAGIC.items() if head.lstrip()[:4] == sig), None)
+    head = tmp.read_bytes()[:512].lstrip()
+    kind = next((k for sig, k in MAGIC.items() if head.startswith(sig)), None)
     if kind is None:
         tmp.unlink(missing_ok=True)
         sys.exit("error: the bytes are not a picture — nothing was kept")
