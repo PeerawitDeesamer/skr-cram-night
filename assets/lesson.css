@@ -642,3 +642,52 @@ mark.num {
   /* ขาวดำ: พื้นหลังกลายเป็นเทาใกล้เคียงกันหมด ขีดล่างคือสิ่งที่ยังแยกชนิดได้ */
   mark{border-bottom-width:2px}
 }
+
+/* ============================================================
+   HEADINGS — สีบอกระดับ + ป้ายบอกว่านี่คือหัวเรื่อง
+   หน้าที่หัวข้อทุกระดับหน้าตาเหมือนกัน คนอ่านตอนตี 1 แยกไม่ออกว่ากำลังอยู่
+   ในหัวข้อใหญ่หรือหัวข้อย่อยของหัวข้อก่อนหน้า และเลื่อนผ่านโดยไม่รู้ตัว
+   สีจึงถูกผูกกับ "ระดับ" ไม่ใช่กับ "ความสำคัญ":
+     แดง  = หัวเรื่อง      (h1 ชื่อบท · h2 หัวข้อใหญ่)
+     น้ำเงิน = หัวเรื่องย่อย (h3 ลงไป)
+   และมีป้ายกำกับบนหัวข้อทุกอัน เพราะสีอย่างเดียวอ่านไม่ได้ตอนปรินต์ขาวดำ
+   และคนตาบอดสีแดง–เขียวแยกแดงจากน้ำเงินเข้มได้ไม่ชัดเสมอไป
+   สองสีนี้เป็น "โครงหน้า" ไม่นับรวมโควตาเน้นสี 10% ของ HIGHLIGHT
+   ============================================================ */
+
+:root{
+  --head:#b3261e;     /* แดง — หัวเรื่อง */
+  --subhead:#1a4f9c;  /* น้ำเงิน — หัวเรื่องย่อย */
+}
+
+h1,h2{color:var(--head)}
+h3,h4,h5,h6{color:var(--subhead)}
+
+/* h2 เป็น flex container อยู่แล้ว (เลข .n อยู่บรรทัดเดียวกับชื่อหัวข้อ)
+   ป้ายจึงต้องได้ทั้งบรรทัดของตัวเอง ไม่ใช่ไปเบียดอยู่ข้างเลข */
+h2{flex-wrap:wrap; row-gap:0; border-bottom:2px solid var(--head)}
+h2 .n{color:var(--head)}
+
+h1::before, h2::before,
+h3::before, h4::before, h5::before, h6::before{
+  content:"หัวเรื่อง";
+  display:block; flex:0 0 100%; width:100%;
+  font-family:'Sarabun',-apple-system,sans-serif;
+  font-size:.64rem; font-weight:700; font-style:normal;
+  /* ภาษาไทยยืดตัวอักษรแล้วอ่านยาก ป้ายจึงเว้นน้อยกว่า eyebrow ที่เป็นอังกฤษ */
+  letter-spacing:.06em; line-height:1.5;
+  margin:0 0 .18rem; color:var(--head);
+  -webkit-print-color-adjust:exact; print-color-adjust:exact;
+}
+h3::before, h4::before, h5::before, h6::before{
+  content:"หัวเรื่องย่อย"; color:var(--subhead);
+}
+
+/* หัวข้อที่ไม่ใช่หัวเรื่องของเนื้อหาจริง (หัวตาราง navigation, ชื่อกล่อง)
+   ใส่ .nolabel เพื่อเอาป้ายออก — สียังคงเดิม */
+.nolabel::before{content:none!important}
+
+@media print{
+  /* สีตัวอักษรของหัวข้อยังพิมพ์ติด แต่บังคับไว้เผื่อเบราว์เซอร์ประหยัดหมึก */
+  h1,h2,h3,h4,h5,h6{-webkit-print-color-adjust:exact; print-color-adjust:exact}
+}

@@ -281,6 +281,28 @@ def check_highlight(name, text):
                    f"({len(marks)} marks) — if everything matters, nothing does")
 
 
+HEAD_ALL_RE = re.compile(r"<(h[1-6])\b([^>]*)>(.*?)</\1>", re.DOTALL | re.IGNORECASE)
+COLOR_RE = re.compile(r"(?:style=[\"'][^\"']*\bcolor\s*:|<font\b[^>]*\bcolor=)", re.IGNORECASE)
+
+
+def check_headings(name, text):
+    """Heading colour belongs to the stylesheet, not to the page.
+
+    แดง = หัวเรื่อง (h1/h2), น้ำเงิน = หัวเรื่องย่อย (h3 ลงไป) — สีผูกกับระดับของ
+    หัวข้อ ไม่ใช่ความสำคัญ (กฎเหล็ก 12). A page that paints its own headings looks
+    right the day it is written and stops matching every other page the next time
+    lesson.css moves, which is exactly the sort of drift nobody notices at 01:00."""
+    body = SCRIPTY_RE.sub("", text)
+    said = False
+    for tag, attrs, inner in HEAD_ALL_RE.findall(body):
+        if said:
+            break
+        if COLOR_RE.search(attrs) or COLOR_RE.search(inner):
+            said = True
+            warn(name, f"<{tag.lower()}> sets its own colour — แดง = หัวเรื่อง, "
+                       "น้ำเงิน = หัวเรื่องย่อย มาจาก lesson.css แล้ว (กฎเหล็ก 12)")
+
+
 def check_citation(name, text):
     """Every lesson should be traceable back to the teacher's own sheet."""
     if re.search(r"(หน้า\s*\d+|ตย\.\s*\d|ตัวอย่าง\s*\d|แบบฝึกหัด|p\.\s*\d+)", text):
@@ -344,6 +366,7 @@ def main() -> int:
             check_where(name, text, a.subject.lower())
         if "/lessons/" in f"/{name}":
             check_highlight(name, text)
+        check_headings(name, text)
         check_citation(name, text)
 
     check_numbers(root, a.subject.lower())
