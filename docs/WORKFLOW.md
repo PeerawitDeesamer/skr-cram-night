@@ -40,5 +40,7 @@ subagent ไม่เห็นบทสนทนานี้ ส่งไปใ�
 - เนื้อหาที่ Opus ตัดสินใจแล้ว: กับดัก เฉลย ใบ้ ตัวเลขที่ verify แล้ว
 - **รายการรูปต่อบท**: ไฟล์สไลด์ + หน้า + `--index` หรือ `--box` + ชื่อไฟล์ปลายทาง
   + `alt` + คำบรรยาย บทไหนต้องวาด SVG เอง ให้บอกว่าวาดอะไรและมีป้ายอะไรบ้าง
-- path ของ workspace, `docs/LESSON-FORMAT.md` และ `docs/FIGURES.md`
+- **รายการคำที่จะเน้นสีต่อบท**: คำ (หรือวรรค) + ชนิด (`key` / `trap` / `num` / `def` /
+  ไม่ใส่คลาส) บทละไม่กี่จุด — subagent ทาสีตามรายการนี้เท่านั้น ห้ามเน้นเพิ่มเอง (กฎ 11)
+- path ของ workspace, `docs/LESSON-FORMAT.md` · `docs/FIGURES.md` · `docs/HIGHLIGHT.md`
 - คำสั่งให้รัน build + `figure.py check` + preflight เอง แล้วรายงานผลกลับ

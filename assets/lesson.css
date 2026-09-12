@@ -310,7 +310,8 @@ h3 {
   font-style: italic;
   color: var(--accent);
   white-space: nowrap;}
-mark { background: #fdf0b8; color: inherit; padding: 0 0.15em; border-radius: 2px;}
+/* mark ถูกยกไปนิยามเต็ม ๆ ที่ท้ายไฟล์ (HIGHLIGHT) — หน้าเก่าที่ใช้ <mark> เปล่า
+   ยังได้สีเหลืองเหมือนเดิม แค่ได้ขีดล่างและสีที่ปรินต์ติดเพิ่มมาด้วย */
 .callout > :last-child { margin-bottom: 0;}
 .callout .label {
   font-family: var(--mono);
@@ -587,4 +588,57 @@ figure.fig.wide{
 @media (max-width:480px){
   .where dl{grid-template-columns:1fr; gap:.1rem}
   .where dt{padding-top:.4rem}
+}
+
+/* ============================================================
+   HIGHLIGHT — เน้นสี: ปากกาเน้นข้อความที่ทำงานบนหน้าจอตอนตี 1
+   หน้าที่เน้นทุกบรรทัดกับหน้าที่ไม่เน้นเลย อ่านได้เท่ากันคือไม่ได้อะไร
+   สีจึงถูกจำกัดไว้ 5 ชนิด แต่ละชนิดตอบคำถามคนละคำถาม (docs/HIGHLIGHT.md)
+   ทุกชนิดมีขีดล่างสีของตัวเองด้วย เพราะ (1) ตาบอดสีแยกเหลือง/เขียวอ่อนไม่ออก
+   (2) ปรินต์ขาวดำแล้วพื้นหลังกลายเป็นเทาเท่ากันหมด
+   ============================================================ */
+
+:root{
+  --hl-plain:#fbeeb0;  --hl-plain-ink:#8a7b1f;   /* ใจความสำคัญทั่วไป */
+  --hl-key:#c9e7da;    --hl-key-ink:var(--fwd);  /* ต้องจำ — สูตร/กฎ */
+  --hl-trap:#f9d6d2;   --hl-trap-ink:var(--wrong); /* กับดักข้อสอบ */
+  --hl-num:#d9e6f3;    --hl-num-ink:#1f6f8b;     /* ตัวเลข/เงื่อนไข */
+  --hl-def:#e7dcf3;    --hl-def-ink:#7a4b93;     /* ศัพท์ตอนนิยามครั้งแรก */
+}
+
+mark{
+  background:var(--hl-plain); color:inherit;
+  padding:.03em .18em; border-radius:2px;
+  border-bottom:1.5px solid var(--hl-plain-ink);
+  /* ข้อความที่เน้นแล้วตัดบรรทัด ต้องได้พื้นหลังทั้งสองท่อน ไม่ใช่ท่อนเดียว */
+  -webkit-box-decoration-break:clone; box-decoration-break:clone;
+  /* เบราว์เซอร์ตัดพื้นหลังทิ้งตอนพิมพ์เป็นค่าเริ่มต้น — ปากกาเน้นที่หายไป
+     ตอนปรินต์ไปอ่านในห้องเรียน คือฟีเจอร์ที่ไม่มีอยู่จริง */
+  -webkit-print-color-adjust:exact; print-color-adjust:exact;
+}
+mark.key {background:var(--hl-key);  border-bottom-color:var(--hl-key-ink)}
+mark.trap{background:var(--hl-trap); border-bottom-color:var(--hl-trap-ink)}
+mark.def {background:var(--hl-def);  border-bottom-color:var(--hl-def-ink); font-weight:600}
+mark.num {
+  background:var(--hl-num); border-bottom-color:var(--hl-num-ink);
+  font-family:'IBM Plex Mono',monospace; font-size:.94em;
+}
+
+/* บนพื้นสีอ่อนของ callout สีเดียวกันจะกลืนหายไป — เข้มขึ้นอีกขั้นเมื่อซ้อนกัน */
+.callout.trap mark.trap{background:#f3bdb5}
+.callout.key  mark.key {background:#aeddca}
+.callout mark, .where mark, .copy mark, figure.fig figcaption mark{
+  padding:.02em .16em;   /* ในกล่องที่บรรทัดชิดอยู่แล้ว อย่าให้ไฮไลต์ดันบรรทัด */
+}
+/* ในบล็อกคัดลงสมุด ทั้งบล็อกสำคัญอยู่แล้ว ไฮไลต์ที่นี่คือ "คำนี้เขียนผิดบ่อย"
+   ไม่ใช่ "บรรทัดนี้สำคัญ" — จึงบางกว่าในเนื้อความ */
+.copy mark{border-bottom-width:1px}
+
+/* ในตัวเลือกของควิซ ไฮไลต์ = ชี้เฉลย เอนจินไม่รู้ แต่ตาผู้อ่านรู้ทันที
+   preflight บล็อกให้อยู่แล้ว ตรงนี้กันไว้อีกชั้นเผื่อหน้าเก่าที่ยังไม่ได้ตรวจ */
+.opt mark{background:none; border-bottom:none; padding:0; font-weight:inherit}
+
+@media print{
+  /* ขาวดำ: พื้นหลังกลายเป็นเทาใกล้เคียงกันหมด ขีดล่างคือสิ่งที่ยังแยกชนิดได้ */
+  mark{border-bottom-width:2px}
 }

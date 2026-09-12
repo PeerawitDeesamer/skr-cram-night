@@ -48,6 +48,11 @@ them.
 6. Nothing ships until `preflight.py` passes
 7. Past mistakes automatically weight the next build
 8. Thai explanations, English technical terms
+9. **Highlight the words that decide the answer, and nothing else.** Five colours with
+   five jobs (main point / must-memorise / exam trap / number / term being defined),
+   capped at ~10% of a page. A page painted end to end reads exactly like a page with
+   no highlighting at all. Highlighting inside a quiz's options is a blocking error —
+   the eye picks the coloured choice before the reader has thought
 
 ## Install
 
@@ -69,6 +74,7 @@ SKILL.md              the rules and the workflow
 docs/
   WORKFLOW.md         one night, start to finish
   LESSON-FORMAT.md    HTML skeleton, CSS classes, the three quiz types
+  HIGHLIGHT.md        the five highlight kinds, the budget, where it gives the answer away
   VERIFY.md           how to write verify.py; the Biology citation rule
   SHEETS.md           reading PDFs, including scanned ones
   RESULTS.md          recording a graded paper
@@ -76,7 +82,7 @@ docs/
 scripts/
   sheet.py            probe / extract text / render scanned pages
   verify_lib.py       sympy ICE solver, Kp↔Kc, a PASS/COMPUTED/FAIL ledger
-  preflight.py        4 blocking checks, 2 warnings
+  preflight.py        the silent failures block; everything else warns
   results.py          record wrong topics; weight the next build
 assets/               one lesson.css, one quiz.js, one build.py, graph.js
 ```

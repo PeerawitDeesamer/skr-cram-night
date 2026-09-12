@@ -1,6 +1,6 @@
 ---
 name: "SKR Cram-Night Builder"
-description: "สร้างชุดบทเรียน + เฉลยแบบฝึกหัดจากชีทของครู สำหรับสอบในโรงเรียน (เคมี ชีวะ ฟิสิกส์ คณิต ม.ปลาย) เป็นหน้า HTML ที่เปิดจากไฟล์ได้ทุกเบราว์เซอร์ ภาษาไทย ศัพท์อังกฤษกำกับ วิชาวิทย์ต้องมีรูปประกอบทุกบท (ครอปจากสไลด์ครู/วาด SVG เอง) ทุกตัวเลขคำนวณด้วย Python ก่อนเขียน. สไลด์ที่เรียงไม่เป็นลำดับสอนจะถูกจัดใหม่ก่อนเขียนบท. Use when studying for a Thai school test from a teacher's PDF sheet (ชีท) or slides, resequencing scattered slide content into a teachable order, building or updating lessons in ~/Documents/SKR/<Subject>/, pulling diagrams out of the teacher's slides into a lesson, unlocking the sheet's own ตัวอย่าง/แบบฝึกหัด with hints and worked solutions, or recording a graded paper's wrong topics."
+description: "สร้างชุดบทเรียน + เฉลยแบบฝึกหัดจากชีทของครู สำหรับสอบในโรงเรียน (เคมี ชีวะ ฟิสิกส์ คณิต ม.ปลาย) เป็นหน้า HTML ที่เปิดจากไฟล์ได้ทุกเบราว์เซอร์ ภาษาไทย ศัพท์อังกฤษกำกับ วิชาวิทย์ต้องมีรูปประกอบทุกบท (ครอปจากสไลด์ครู/วาด SVG เอง) ทุกตัวเลขคำนวณด้วย Python ก่อนเขียน. เน้นสีเฉพาะคำที่ตัดสินคำตอบ ไม่เกิน 10% ของหน้า. สไลด์ที่เรียงไม่เป็นลำดับสอนจะถูกจัดใหม่ก่อนเขียนบท. Use when studying for a Thai school test from a teacher's PDF sheet (ชีท) or slides, resequencing scattered slide content into a teachable order, building or updating lessons in ~/Documents/SKR/<Subject>/, pulling diagrams out of the teacher's slides into a lesson, highlighting the keywords that decide an answer, unlocking the sheet's own ตัวอย่าง/แบบฝึกหัด with hints and worked solutions, or recording a graded paper's wrong topics."
 ---
 
 # SKR — ชุดบทเรียนคืนก่อนสอบ
@@ -46,6 +46,14 @@ description: "สร้างชุดบทเรียน + เฉลยแบ
     ถาม "เกิดที่ใด" บ่อยกว่าถามกลไก และตำแหน่งที่กระจายอยู่ในย่อหน้าอ่านแล้วดูดี
     แต่ตอบไม่ได้ · ต้องมีบรรทัดตำแหน่งใน "คัดลงสมุด" และควิซ `data-tag="ตำแหน่ง-…"`
     อย่างน้อยหนึ่งข้อ ([WHERE.md](docs/WHERE.md))
+11. **ต้องเน้นสีคำสำคัญ และเน้นให้น้อย** ไม่เกิน ~10% ของข้อความ · ย่อหน้าละ 1–2 จุด ·
+    จุดละไม่เกินหนึ่งวรรค หน้าที่ตัวอักษรเสมอกันหมดไม่มีที่ให้ตาเกาะ และหน้าที่ทาสี
+    ทุกบรรทัดให้ผลเท่ากันเป๊ะ — **ถ้าทุกอย่างสำคัญ แปลว่าไม่มีอะไรสำคัญ**
+    เน้นเฉพาะคำที่อ่านผิดแล้วทำข้อนั้นไม่ได้ ห้าชนิด: `<mark>` ใจความ ·
+    `.key` ต้องจำ · `.trap` กับดัก · `.num` ตัวเลข/เงื่อนไข · `.def` ศัพท์ตอนนิยามครั้งแรก
+    **ห้ามเน้นในตัวเลือกของควิซ** (`.opts`) นั่นคือการชี้เฉลย ผู้อ่านตอบถูกโดยไม่ได้คิด
+    แล้วเข้าใจว่าตัวเองรู้เรื่องนั้นแล้ว — `preflight.py` บล็อก
+    ([HIGHLIGHT.md](docs/HIGHLIGHT.md))
 
 ## Environment
 
@@ -117,6 +125,9 @@ python3 $S/scripts/outline.py scatter "ชีท.pdf"                # เรื
 - **จ่ายรูปให้แต่ละบท: รูปไหน มาจากสไลด์หน้าไหน คำบรรยายพูดว่าอะไร** (กฎ 9)
   การเลือกว่ารูปไหนสอนอะไรคือการตัดสินใจเรื่องการสอน ไม่ใช่งานกลไก — Sonnet
   ครอปให้ได้ แต่เลือกให้ไม่ได้ · บทไหนชีทไม่มีรูป ให้ระบุว่าจะวาด SVG อะไร
+- **ชี้ว่าจะเน้นสีคำไหนบ้างในแต่ละบท พร้อมชนิด** (กฎ 11) การเลือกว่าคำไหนคือคำที่
+  อ่านผิดแล้วทำข้อสอบไม่ได้ มาจากการอ่านชีทและรู้ว่าข้อสอบดักตรงไหน — Sonnet ทาสีให้ได้
+  แต่ชี้ให้ไม่ได้ ปล่อยให้เลือกเอง ได้หน้าที่ทาสีเท่ากันหมดทั้งหน้า
 - **ชีวะ: กรอก `.where` ของทุกกระบวนการเอง** (กฎ 10) อวัยวะ · ส่วน/เซลล์ ·
   สร้างที่ · ออกฤทธิ์ที่ — ช่องไหนที่ชีทไม่ได้บอก **ห้ามเดา** ทุกช่องคือข้อความ
   ที่ต้องอ้างหน้าในชีทได้ และรูปของหัวข้อนั้นต้องใช้ชื่อตำแหน่งคำเดียวกันเป๊ะ
@@ -129,11 +140,14 @@ python3 $S/scripts/outline.py scatter "ชีท.pdf"                # เรื
 
 งานกลไกทั้งหมดมอบให้ subagent ที่ตั้ง `model: "sonnet"`:
 เขียน HTML ตามโครงที่ Opus วางไว้ · **ครอป/ดึงรูปตามที่ Opus จ่ายไว้ ลง `lessons/fig/`** ·
+**ทาไฮไลต์ตามรายการคำที่ Opus ชี้ไว้ ห้ามเพิ่มเอง** ·
 รัน `build.py` · เรนเดอร์หน้าสแกน · รัน `verify.py` · แก้ CSS/ภาษาไทย ·
 รัน `figure.py check` แล้ว `preflight.py`
 
 ส่งโครงบท เนื้อหาที่ Opus ตัดสินใจแล้ว รายการรูปพร้อมหน้าและคำบรรยาย
-[LESSON-FORMAT.md](docs/LESSON-FORMAT.md) และ [FIGURES.md](docs/FIGURES.md)
+รายการคำที่จะเน้นพร้อมชนิด
+[LESSON-FORMAT.md](docs/LESSON-FORMAT.md) · [FIGURES.md](docs/FIGURES.md) ·
+[HIGHLIGHT.md](docs/HIGHLIGHT.md)
 ไปให้ครบในคำสั่งเดียว — subagent ไม่เห็นบทสนทนานี้
 
 ## 4. โครงหน้าบทเรียน
@@ -146,6 +160,10 @@ python3 $S/scripts/outline.py scatter "ชีท.pdf"                # เรื
 </div>
 <!-- แล้วค่อยอธิบายยาวข้างล่าง สำหรับตอนที่ติด -->
 ```
+
+ในคำอธิบายยาวข้างล่าง เน้นสีเฉพาะคำที่ผิดแล้วทำข้อสอบไม่ได้ ประหยัดไว้ (กฎ 11) —
+`<mark>` ใจความ · `<mark class="trap">` กับดัก · `<mark class="num">` ตัวเลข ·
+`<mark class="key">` ต้องจำ · `<mark class="def">` ศัพท์ตอนนิยาม
 
 แบบฝึกหัดของครูใส่เป็น `data-type="reveal"` พร้อม `data-hint` — ใบ้ก่อน เฉลยทีหลัง
 ไม่นับคะแนน เพราะมันคือที่ที่คุณซื่อสัตย์กับตัวเองได้ (กฎ 4)
@@ -162,6 +180,7 @@ python3 ~/.claude/skills/skr/scripts/preflight.py --subject chem
 
 `preflight` บล็อก = ห้ามส่งมอบ ต้องแก้ก่อน · warning = บอกแล้วส่งได้
 รูปที่ `src` ชี้ไปไม่มีไฟล์ หรืออ้าง `../` หรือ hotlink เว็บ = บล็อก
+ไฮไลต์ในตัวเลือกควิซ = บล็อก · เน้นเกินโควตา หรือทั้งบทไม่เน้นเลย = warning
 รูปไม่ถึงโควตา และชีวะที่ไม่มี `.where` = warning แต่ **ต้องบอกผู้ใช้ตรง ๆ
 ว่าบทไหนขาด** ไม่ใช่ปล่อยผ่านเงียบ ๆ
 
@@ -191,6 +210,7 @@ python3 ~/.claude/skills/skr/scripts/results.py add --subject chem \
 | [SHEETS.md](docs/SHEETS.md) | อ่าน PDF ทั้งแบบมี text layer และแบบสแกน |
 | [SEQUENCE.md](docs/SEQUENCE.md) | ทำแผนที่สไลด์ · เรียงเนื้อหาใหม่ · บอกผู้ใช้ว่าจัดยังไง |
 | [FIGURES.md](docs/FIGURES.md) | โควตารูปต่อบท · ดึงรูปจากสไลด์ · วาด SVG เอง · ที่มา |
+| [HIGHLIGHT.md](docs/HIGHLIGHT.md) | เน้นสี: ห้าชนิด · โควตา · ที่ที่ห้ามเน้นเพราะมันเฉลยให้ |
 | [WHERE.md](docs/WHERE.md) | ชีวะ: บล็อก "เกิดที่ไหน" · สร้างที่ vs ออกฤทธิ์ที่ |
 | [RESULTS.md](docs/RESULTS.md) | บันทึกผลสอบ และการถ่วงน้ำหนักอัตโนมัติ |
 | [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | กับดัก `file://` ภาษาไทยเพี้ยน ควิซไม่ทำงาน |

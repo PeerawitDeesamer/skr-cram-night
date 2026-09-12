@@ -195,6 +195,75 @@ def check_where(name, text, subject):
                    "the one the reader thinks they can answer until asked")
 
 
+HL_CLASSES = {"key", "trap", "num", "def"}
+MARK_RE = re.compile(r"<mark\b([^>]*)>(.*?)</mark>", re.DOTALL | re.IGNORECASE)
+OPTS_RE = re.compile(r'<div class="opts".*?</div>', re.DOTALL)
+HEAD_RE = re.compile(r"<h[123]\b[^>]*>.*?</h[123]>", re.DOTALL | re.IGNORECASE)
+TAG_RE = re.compile(r"<[^>]+>")
+
+
+def check_highlight(name, text):
+    """Highlighting is a budget, not a decoration (docs/HIGHLIGHT.md).
+
+    Every extra mark makes the rest cheaper, and a page painted end to end reads
+    exactly like a page with no marks at all — except it took longer to write.
+    The one blocking case is a mark inside the options of a quiz: the eye lands
+    on the coloured choice before the reader has thought, they get it right, and
+    they walk away believing they know the topic."""
+    body = SCRIPTY_RE.sub("", text)
+
+    for opts in OPTS_RE.findall(body):
+        if MARK_RE.search(opts):
+            block(name, "a <mark> inside <div class=\"opts\"> — the highlighted "
+                        "option is answered by eye, not by thinking (docs/HIGHLIGHT.md)")
+            break
+
+    marks = MARK_RE.findall(body)
+    if not marks:
+        # A glossary or a mock exam is not a lesson; only a teaching page (กฎเหล็ก 5
+        # makes .copy mandatory in one) is expected to guide the eye.
+        if 'class="copy"' in body:
+            warn(name, "nothing is highlighted — a page of even grey text is one "
+                       "that gets scrolled past at 01:00 (docs/HIGHLIGHT.md)")
+        return
+
+    marked, seen, said = 0, set(), set()
+    for attrs, inner in marks:
+        cls = re.search(r"""class=["']([^"']*)["']""", attrs)
+        for c in (cls.group(1).split() if cls else []):
+            if c not in HL_CLASSES and c not in seen:
+                seen.add(c)
+                warn(name, f'<mark class="{c}"> is not a highlight kind — '
+                           f"use {' / '.join(sorted(HL_CLASSES))}, or plain <mark>")
+        plain = TAG_RE.sub("", inner).strip()
+        marked += len(plain)
+        # One line per kind: a page that got this wrong got it wrong everywhere,
+        # and twenty identical warnings bury the four that differ.
+        if re.search(r"<(p|li|div|table|h[123])\b", inner, re.IGNORECASE):
+            if "blockwrap" not in said:
+                said.add("blockwrap")
+                warn(name, "a <mark> wraps a whole block element — highlight the "
+                           "words that carry the claim, not the container")
+        elif len(plain) > 100 and "toolong" not in said:
+            said.add("toolong")
+            warn(name, f'a <mark> covers {len(plain)} characters ("{plain[:32]}…") — '
+                       "past a phrase the eye has nowhere to land")
+
+    for h in HEAD_RE.findall(body):
+        if MARK_RE.search(h):
+            warn(name, "a <mark> inside a heading — headings already stand out")
+            break
+
+    # Share of the visible prose that is painted. Ten percent is roughly one
+    # phrase per paragraph, which is what a reader can still act on.
+    # Short pages make the ratio jumpy — a formula sheet with three marks is
+    # not over-painted — so the budget only applies once there is prose to budget.
+    visible = len(TAG_RE.sub("", body).strip())
+    if visible > 1200 and len(marks) >= 5 and marked / visible > 0.10:
+        warn(name, f"{marked * 100 // visible}% of the text is highlighted "
+                   f"({len(marks)} marks) — if everything matters, nothing does")
+
+
 def check_citation(name, text):
     """Every lesson should be traceable back to the teacher's own sheet."""
     if re.search(r"(หน้า\s*\d+|ตย\.\s*\d|ตัวอย่าง\s*\d|แบบฝึกหัด|p\.\s*\d+)", text):
@@ -256,6 +325,8 @@ def main() -> int:
             check_figure_quota(name, text, a.subject.lower())
         if "/lessons/" in f"/{name}":
             check_where(name, text, a.subject.lower())
+        if "/lessons/" in f"/{name}":
+            check_highlight(name, text)
         check_citation(name, text)
 
     check_numbers(root, a.subject.lower())
