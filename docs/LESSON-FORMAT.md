@@ -56,7 +56,7 @@
 | `.meta` `.tag` | แถบอ้างอิงหน้าในชีท |
 | `.ask` | คำถามให้คิดต่อ ท้ายบท |
 | `.score` | แถบคะแนนรวมของหน้า (ใส่หนึ่งอันท้ายหน้าที่มีควิซ) |
-| `figure.fig` | รูปทุกชนิด — ครอปจากสไลด์ หรือ SVG ที่วาดเอง |
+| `figure.fig` | รูปทุกชนิด — ดึง/ครอปจากสไลด์ หรือโหลดจากแหล่งที่เชื่อถือได้ |
 | `figure.fig.wide` | รูปที่ป้ายเยอะจนต้องกว้างเกินคอลัมน์ |
 | `.figrow` | 2–3 รูปที่มีความหมายเมื่ออยู่ข้างกัน (ก่อน/หลัง, ปกติ/ผิดปกติ) |
 | `.figsrc` | บรรทัดที่มาใน `figcaption` |
@@ -138,24 +138,25 @@
 - `alt` บรรยายว่าเห็นอะไร · `figcaption` พูดสิ่งที่ข้อสอบจะถาม · `.figsrc` อ้างที่มา
 - ดึงรูปด้วย `scripts/figure.py` — มันพิมพ์บรรทัด `<img …>` ที่ถูกต้องออกมาให้
 
-### SVG ที่วาดเอง
+### ห้ามวาด `<svg>` เอง
+
+`preflight.py` บล็อกหน้าที่มี `<svg>` เขียนด้วยมือ รูปต้องมาจากสไลด์ของครู
+(`figure.py pull/crop`) หรือโหลดจากแหล่งที่เชื่อถือได้ (`figure.py fetch`)
+เหตุผลและลำดับที่ต้องลองอยู่ใน [FIGURES.md](FIGURES.md)
+
+ข้อยกเว้นเดียวคือกราฟความเข้มข้น–เวลาของ `graph.js` ซึ่งพล็อตจากตัวเลขของชีทเอง
+ไม่ได้วาดด้วยตา:
 
 ```html
-<figure class="fig">
-  <svg viewBox="0 0 600 260" role="img" aria-label="แผนภาพพลังงานของปฏิกิริยาคายความร้อน">
-    <path d="M40 190 C 160 190, 200 60, 300 60 S 440 200, 560 200"
-          fill="none" stroke="var(--accent)" stroke-width="2.5"/>
-    <line x1="40" y1="190" x2="560" y2="190" stroke="var(--rule)" stroke-width="1"/>
-    <text x="300" y="45" font-size="13" font-family="Sarabun,sans-serif"
-          text-anchor="middle" fill="var(--ink)">สถานะแทรนซิชัน</text>
-  </svg>
-  <figcaption>…</figcaption>
+<figure class="cgraph"
+        data-series='[{"label":"A","from":1.0,"to":0.40},
+                      {"label":"B","from":0,"to":0.60}]'
+        data-teq="0.55" data-ymax="1.2"
+        data-ylab="ความเข้มข้น (M)" data-xlab="เวลา">
+  <figcaption>ที่สมดุล ความเข้มข้นคงที่ <b>ไม่ใช่เท่ากัน</b>
+    <span class="figsrc">ตัวเลขจากชีทหน้า 12</span></figcaption>
 </figure>
 ```
-
-`viewBox` เสมอ ห้ามใส่ `width`/`height` เป็น px · ตัวอักษร ≥ 13 บน viewBox กว้าง ~600 ·
-ป้ายไทยต้อง `font-family="Sarabun,sans-serif"` · สีใช้ตัวแปรของธีม
-(`var(--accent)` `var(--fwd)` `var(--rev)` `var(--ink)` `var(--rule)`)
 
 ### ชีวะ: บล็อก "เกิดที่ไหน" (บังคับ — กฎเหล็ก 10)
 

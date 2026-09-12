@@ -8,6 +8,11 @@ Safari refused to load, a quiz whose engine never ran, a figure whose file is
 not there, a number nobody computed. Each has already cost this workspace real
 time, which is why they block rather than warn.
 
+A hand-drawn <svg> blocks too, for a different reason: a diagram invented
+here was never checked against the sheet, and a confident wrong picture is
+studied just as hard as a right one. Figures come from the slides or from a
+trusted source.
+
 The rest are warnings: the figure quota, citations, alt text, the eyeball list.
 They make the output better, they never make it broken, and at 23:00 the night
 before a test the right behaviour is to hand over imperfect files rather than
@@ -114,12 +119,11 @@ def count_figures(text):
 
     The inlined engines are stripped first — graph.js builds its SVG out of
     string literals, and counting those would credit every page with a dozen
-    figures it does not have. A <figure> counts once whether it holds an <img>,
-    an inline <svg>, or an empty shell that graph.js fills at load."""
+    figures it does not have. A <figure> counts once whether it holds an <img>
+    or is an empty .cgraph shell that graph.js plots into at load."""
     body = SCRIPTY_RE.sub("", text)
     body, figures = FIGURE_RE.subn("", body)
-    loose = len(IMG_RE.findall(body)) + len(re.findall(r"<svg\b", body))
-    return figures + loose
+    return figures + len(IMG_RE.findall(body))
 
 
 def check_images(path, name, text):
@@ -148,11 +152,24 @@ def check_images(path, name, text):
         if 'alt="' not in tag or re.search(r'alt="\s*"', tag):
             warn(name, f"an <img> has no useful alt text ({src})")
 
-    for tag in re.findall(r"<svg\b[^>]*>", text):
-        if "viewBox" not in tag:
-            warn(name, "an inline <svg> has no viewBox — it will not scale to the column")
-        if re.search(r'\swidth="\d', tag):
-            warn(name, "an inline <svg> sets a px width — let the CSS size it")
+    # Where a figure came from is the only way to check it later: a slide page
+    # number, or the licence line figure.py fetch wrote into fig/SOURCES.md.
+    for fig in FIGURE_RE.findall(text):
+        if "<img" in fig and "figsrc" not in fig:
+            warn(name, "a figure has no .figsrc line — say which slide page it "
+                       "came from, or which source it was fetched from")
+
+    # A diagram drawn here by hand is a diagram nobody checked against the
+    # sheet: it looks authoritative and can be wrong in exactly the way the
+    # marker is testing. Figures come from the teacher's own slide, or from a
+    # trusted source via `figure.py fetch` — never from this script's
+    # imagination. graph.js is the one exception, and it writes its <svg> at
+    # load time out of data-series, so nothing literal shows up here.
+    if re.search(r"<svg\b", text):
+        block(name, "an inline <svg> is drawn by hand — pull the figure from the "
+                    "slides (figure.py pull/crop) or fetch one from a trusted "
+                    "source; a plot of the sheet's own numbers goes in "
+                    '<figure class="cgraph" data-series=…>')
 
 
 def check_figure_quota(name, text, subject):

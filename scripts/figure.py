@@ -17,12 +17,14 @@ Ways to get a figure, cheapest first:
     grid    render a page with a 0-100 ruler drawn on top, so a crop box can be
             read straight off the picture
     crop    cut that box out at print resolution
-    fetch   download one off the web into the workspace, with its licence
+    fetch   download one off a trusted source into the workspace, with its
+            licence — re-encoded on the way in, so nothing executable lands
     check   what every figure in a folder actually weighs and measures
 
 `pull` beats `crop` whenever it works: the embedded original has no slide
 background, no title text, no JPEG-of-a-JPEG. Try it first, fall back to crop
 for anything the teacher assembled out of several pieces (labels + arrows).
+Figures are never drawn by hand — the slide first, a trusted source second.
 
 Every write prints the path it actually used and the <img> line to paste. A PNG
 over 1.2 MB is re-saved as JPEG, so that path is not always the one you asked
@@ -43,10 +45,12 @@ and 100,100 at the bottom-right — the same numbers printed on the `grid` ruler
 """
 
 import argparse
+import hashlib
 import pathlib
 import re
 import subprocess
 import sys
+import urllib.parse
 
 try:
     import pymupdf
@@ -63,6 +67,25 @@ MIN_WIDTH = 520
 # or an email to yourself.
 FAT_BYTES = 1_200_000
 UA = "Mozilla/5.0 (Macintosh) skr-figure/1.0 (cram-night lesson builder)"
+# A downloaded figure is a file from a stranger opened on the study machine.
+# Two things keep that safe, and both are enforced below, not advised:
+# the host is one of these, and the bytes are re-encoded into a fresh raster
+# before they are kept — an SVG is rasterised, so a <script> inside one never
+# reaches the lesson page. Suffix entries cover a whole class of institution;
+# exact entries are the individual sites worth having.
+TRUSTED_SUFFIXES = (".gov", ".edu", ".ac.th", ".go.th", ".int")
+TRUSTED_HOSTS = (
+    "wikimedia.org", "wikipedia.org", "wikibooks.org",   # Commons — licensed
+    "openstax.org", "cnx.org",                           # open textbooks
+    "nih.gov", "ncbi.nlm.nih.gov", "nlm.nih.gov",        # bio/chem reference
+    "nasa.gov", "noaa.gov", "usgs.gov", "esa.int",       # physics/earth
+    "cdc.gov", "who.int", "europepmc.org",
+)
+# 20 MB is well past any diagram and well short of anything worth streaming
+# down a hotel wifi at 01:00.
+MAX_DOWNLOAD = 20 * 1024 * 1024
+MAGIC = {b"\x89PNG": "png", b"\xff\xd8\xff": "jpg", b"GIF8": "gif",
+         b"RIFF": "webp", b"<svg": "svg", b"<?xm": "svg"}
 
 
 def parse_pages(spec: str, n: int) -> list[int]:
@@ -284,46 +307,95 @@ def cmd_crop(path: pathlib.Path, page_no: int, box: str,
     return 0
 
 
-def cmd_fetch(url: str, out: pathlib.Path, cite: str) -> int:
-    """Download a figure into the workspace. Never hotlink: the lesson is read
-    offline from file://, and a URL that 404s in a month is a lesson with a hole
-    in it. Provenance is written next to the file, not left in the chat."""
+def host_of(url: str) -> str:
+    return urllib.parse.urlsplit(url).hostname or ""
+
+
+def host_trusted(host: str, extra: str = "") -> bool:
+    """A host passes if it is (or sits under) something on the list. Matching is
+    on labels, never on substrings: `wikimedia.org.evil.com` must not pass for
+    containing `wikimedia.org`, and `notnih.gov` must not pass for ending in it."""
+    host = host.lower().rstrip(".")
+    names = list(TRUSTED_HOSTS) + ([extra.lower()] if extra else [])
+    if any(host == n or host.endswith("." + n) for n in names):
+        return True
+    return any(host.endswith(sfx) for sfx in TRUSTED_SUFFIXES)
+
+
+def cmd_fetch(url: str, out: pathlib.Path, cite: str, trust: str) -> int:
+    """Download a figure into the workspace, from a source worth trusting, and
+    keep only bytes this script wrote itself.
+
+    Never hotlink: the lesson is read offline from file://, and a URL that 404s
+    in a month is a lesson with a hole in it. Provenance is written next to the
+    file, not left in the chat."""
+    if not url.lower().startswith("https://"):
+        sys.exit("error: https only — plain http can be rewritten in transit")
+    if not host_trusted(host_of(url), trust):
+        sys.exit(f"error: {host_of(url)} is not a trusted source.\n"
+                 f"       allowed: {', '.join(TRUSTED_HOSTS)}\n"
+                 f"       or any host under {', '.join(TRUSTED_SUFFIXES)}\n"
+                 "       another host needs the user to say so: --trust HOST")
+
     out.parent.mkdir(parents=True, exist_ok=True)
+    tmp = out.with_suffix(out.suffix + ".part")
     # curl, not urllib: the python.org build on this Mac ships no CA bundle, so
     # urllib fails every https fetch with CERTIFICATE_VERIFY_FAILED. curl uses
     # the system keychain and is on every Mac. The User-Agent is not optional —
     # Wikimedia, the best source of licensed diagrams, 400s a request without one.
+    # --proto/--proto-redir pin the whole chain to https so a redirect cannot
+    # walk the download down to http or off to file:.
     proc = subprocess.run(
         ["curl", "-fsSL", "--max-time", "45", "-A", UA,
-         "-w", "%{content_type}", "-o", str(out), url],
+         "--proto", "=https", "--proto-redir", "=https",
+         "--max-filesize", str(MAX_DOWNLOAD),
+         "-w", "%{content_type}\n%{url_effective}", "-o", str(tmp), url],
         capture_output=True, text=True)
     if proc.returncode != 0:
-        out.unlink(missing_ok=True)
+        tmp.unlink(missing_ok=True)
         sys.exit(f"error: could not fetch {url} — {proc.stderr.strip() or proc.returncode}")
-    # A server that says text/html is serving an error page or a cookie wall,
-    # whatever the URL ends in. Only an absent content-type falls back to the
-    # extension; a stated one is believed.
-    ctype = proc.stdout.strip().split(";")[0]
-    ok = ("image" in ctype) if ctype else \
-         out.suffix.lower() in {".png", ".jpg", ".jpeg", ".svg", ".webp"}
-    if not ok:
-        out.unlink(missing_ok=True)
-        sys.exit(f"error: {url} served {ctype or 'no content-type'}, not an image")
 
-    if out.suffix.lower() != ".svg":
-        try:  # re-encode through pymupdf so an oversized JPEG does not ship as-is
-            pix = pymupdf.Pixmap(out)
+    fields = proc.stdout.strip().split("\n")
+    ctype = fields[0].strip().split(";")[0] if fields else ""
+    final = fields[1].strip() if len(fields) > 1 else url
+    # A redirect that lands somewhere else is a different source than the one
+    # that was checked, whatever the first URL said.
+    if not host_trusted(host_of(final), trust):
+        tmp.unlink(missing_ok=True)
+        sys.exit(f"error: redirected to {host_of(final)}, which is not trusted")
+    # A server that says text/html is serving an error page or a cookie wall,
+    # whatever the URL ends in.
+    if ctype and "image" not in ctype and "svg" not in ctype:
+        tmp.unlink(missing_ok=True)
+        sys.exit(f"error: {final} served {ctype}, not an image")
+
+    head = tmp.read_bytes()[:512]
+    kind = next((k for sig, k in MAGIC.items() if head.lstrip()[:4] == sig), None)
+    if kind is None:
+        tmp.unlink(missing_ok=True)
+        sys.exit("error: the bytes are not a picture — nothing was kept")
+
+    # Everything is re-encoded through pymupdf and written out fresh. An SVG is
+    # rasterised here, which is the point: script, foreignObject and external
+    # <image> references cannot survive becoming pixels.
+    try:
+        if kind == "svg":
+            doc = pymupdf.open(str(tmp))
+            pix = doc[0].get_pixmap(dpi=200)
+            while pix.width > MAX_WIDTH:
+                pix.shrink(1)
+        else:
+            pix = pymupdf.Pixmap(str(tmp))
             while pix.width > 2 * MAX_WIDTH:
                 pix.shrink(1)
-            written = save(pix, out.with_suffix(".png"))
-            if out != written:
-                out.unlink(missing_ok=True)
-            out = written
-            report(out, pix)
-        except Exception:
-            print(f"{out}  {out.stat().st_size / 1024:.0f} KB (kept as downloaded)")
-    else:
-        print(f"{out}  {out.stat().st_size / 1024:.0f} KB")
+    except Exception as exc:
+        tmp.unlink(missing_ok=True)
+        sys.exit(f"error: could not re-encode {final} — {exc}")
+
+    digest = hashlib.sha256(tmp.read_bytes()).hexdigest()[:16]
+    tmp.unlink(missing_ok=True)          # the downloaded bytes never survive
+    out = save(pix, out.with_suffix(".png"))
+    report(out, pix)
 
     src = out.parent / "SOURCES.md"
     if not src.exists():
@@ -332,7 +404,8 @@ def cmd_fetch(url: str, out: pathlib.Path, cite: str) -> int:
                        "รูปที่โหลดจากเน็ตต้องมีบรรทัดของตัวเองที่นี่ทุกรูป\n\n",
                        encoding="utf-8")
     with src.open("a", encoding="utf-8") as f:
-        f.write(f"- `{out.name}` — {cite or 'ไม่ระบุที่มา — ต้องเติม'}\n  {url}\n")
+        f.write(f"- `{out.name}` — {cite or 'ไม่ระบุที่มา — ต้องเติม'}\n"
+                f"  {final}\n  sha256:{digest} (ต้นฉบับก่อนแปลงเป็น PNG)\n")
     if not cite:
         print("  ! no --cite given; SOURCES.md now has a hole in it", file=sys.stderr)
     return 0
@@ -387,6 +460,8 @@ def main() -> int:
     ap.add_argument("--dpi", type=int, default=220, help="crop/grid render resolution")
     ap.add_argument("--trim", action="store_true", help="crop: shave uniform light margins")
     ap.add_argument("--cite", default="", help="fetch: source + licence, for SOURCES.md")
+    ap.add_argument("--trust", default="",
+                    help="fetch: one extra host to allow, when the user has said so")
     a = ap.parse_args()
 
     if a.mode in {"list", "pull", "grid", "crop"}:
@@ -411,7 +486,7 @@ def main() -> int:
             sys.exit("error: fetch wants a http(s) URL")
         if not a.out:
             sys.exit("error: fetch needs --out lessons/fig/NAME.png")
-        return cmd_fetch(a.source, a.out, a.cite)
+        return cmd_fetch(a.source, a.out, a.cite, a.trust)
 
     return cmd_check(pathlib.Path(a.source))
 
