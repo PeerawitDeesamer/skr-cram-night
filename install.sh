@@ -9,7 +9,8 @@
 #   * ~/Documents/SKR/<Subject>/ exists for each subject in play, with the
 #     lessons/fig/ folder every figure must live in (Safari will not load one
 #     that sits outside lessons/)
-#   * every workspace holds the CURRENT shared assets/lesson.css, assets/quiz.js
+#   * every workspace holds the CURRENT shared assets/lesson.css, assets/quiz.js,
+#     assets/graph.js and the ธีม สสวท LaTeX files
 #     and build.py — one library, fixed once, copied everywhere
 set -uo pipefail
 
@@ -54,7 +55,8 @@ for s in "${SUBJECTS[@]}"; do
     ok "$s created"
   fi
 
-  for f in assets/lesson.css assets/quiz.js assets/graph.js; do
+  for f in assets/lesson.css assets/quiz.js assets/graph.js \
+           assets/ipst-theme.tex assets/ipst-worksheet.tex; do
     src="$SKILL/$f"; dst="$ws/$f"
     mkdir -p "$(dirname "$dst")"
     if [[ -f "$dst" ]] && cmp -s "$src" "$dst"; then

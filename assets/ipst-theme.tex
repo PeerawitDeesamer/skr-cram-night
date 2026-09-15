@@ -1,0 +1,162 @@
+% ============================================================
+%  ธีม สสวท  (IPST theme)  --  assets/ipst-theme.tex
+%  หน้าตาหนังสือเรียน สสวท. สำหรับงาน PDF ของสกิล skr
+%  สีทุกค่าดูดจากไฟล์สแกนของหนังสือจริง ห้ามเดาสีเอง
+%  ใช้กับ XeLaTeX เท่านั้น (ต้องมีฟอนต์ TH Sarabun New)
+%
+%  วิธีใช้:
+%    \documentclass[12pt]{article}
+%    \input{ipst-theme}
+%    \renewcommand{\ipstchaptag}{บทที่ 2 $\vert$ เมทริกซ์}
+%    \renewcommand{\ipstband}{เฉลยแบบฝึกหัดท้ายบท ...}
+%    \AtBeginDocument{\solnsize}
+%    \begin{document}\begin{sheetbox} ... \end{sheetbox}\end{document}
+% ============================================================
+\usepackage{geometry}
+\geometry{paperwidth=595.276pt, paperheight=820.824pt,
+          left=56pt, right=56pt, top=118pt, bottom=82pt,
+          headheight=14pt, headsep=30pt, footskip=40pt}
+\usepackage{fontspec}
+\usepackage{unicode-math}
+\usepackage{amsmath}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{fancyhdr}
+\usepackage[most]{tcolorbox}
+\usepackage{enumitem}
+\usepackage{ragged2e}
+\usetikzlibrary{calc}
+
+% ---------- สีจากชีทต้นฉบับ ----------
+\definecolor{skrpurple}{RGB}{129,50,148}   % แถบหัว / วงกลมเลขข้อ
+\definecolor{skrred}{RGB}{191,56,85}       % กล่องเลขหน้า
+\definecolor{skrtag}{RGB}{242,218,218}     % พื้นป้ายชื่อบท
+\definecolor{skrlav}{RGB}{230,216,236}     % พื้นกล่องเนื้อหา
+\definecolor{skrblue}{RGB}{48,91,173}      % ฟุตเตอร์ สสวท.
+\definecolor{skrink}{RGB}{26,26,26}
+
+% ---------- ฟอนต์ TH Sarabun New ----------
+\setmainfont{THSarabunNew}[
+  Extension      = .ttf,
+  UprightFont    = *,
+  BoldFont       = * Bold,
+  ItalicFont     = * Italic,
+  BoldItalicFont = * BoldItalic,
+  Ligatures      = TeX ]
+\setmathfont{latinmodern-math.otf}
+\XeTeXlinebreaklocale "th"
+\XeTeXlinebreakskip = 0pt plus 1pt
+
+% ---------- ขนาดมาตรฐานของธีม: โจทย์ 18pt / วิธีทำ 16pt / หมายเหตุ 14pt ----------
+\newcommand{\probsize}{\fontsize{18pt}{27pt}\selectfont}
+\newcommand{\solnsize}{\fontsize{16pt}{25pt}\selectfont}
+\newcommand{\smallsize}{\fontsize{14pt}{21pt}\selectfont}
+
+% ---------- เมทริกซ์: จัดขวาแบบในหนังสือ ----------
+\setlength{\arraycolsep}{4pt}
+\newenvironment{bmat}{\left[\begin{array}{*{8}{r}}}{\end{array}\right]}
+\newcommand{\bmt}[1]{\ensuremath{\begin{bmat}#1\end{bmat}}}
+\renewcommand{\arraystretch}{1.08}
+\newcommand{\ok}{\ensuremath{\checkmark}}
+
+% ---------- วงกลมเลขข้อ ----------
+\newcommand{\qcircle}[1]{%
+  \tikz[baseline=(n.base)]{
+    \node[circle, fill=skrpurple, text=white, inner sep=0pt,
+          minimum size=20pt, font=\fontsize{13.5pt}{13.5pt}\selectfont\bfseries] (n) {#1};}}
+
+% ---------- หัวข้อ/โจทย์/วิธีทำ ----------
+\newlength{\qindent}\setlength{\qindent}{26pt}
+\newcommand{\Q}[2]{%                                    #1 = เลขข้อ, #2 = ตัวโจทย์
+  \par\addvspace{16pt}\noindent
+  \begin{minipage}{\linewidth}
+    \probsize\color{skrink}
+    \noindent\makebox[\qindent][l]{\qcircle{#1}}%
+    \begin{minipage}[t]{\dimexpr\linewidth-\qindent\relax}#2\end{minipage}
+  \end{minipage}\par\addvspace{6pt}}
+
+\newcommand{\Sol}{\par\addvspace{4pt}\noindent\hspace*{\qindent}%
+  {\solnsize\bfseries\color{skrpurple}วิธีทำ}\hspace{6pt}\ignorespaces}
+
+% บล็อกวิธีทำ (16pt) เยื้องให้ตรงกับตัวโจทย์
+\newenvironment{soln}{%
+  \par\addvspace{2pt}\solnsize\color{skrink}
+  \begin{list}{}{\setlength{\leftmargin}{\qindent}\setlength{\rightmargin}{0pt}%
+    \setlength{\itemsep}{2pt}\setlength{\parsep}{2pt}\setlength{\topsep}{2pt}}\item[]}%
+  {\end{list}\par\addvspace{2pt}}
+
+% หัวข้อย่อย 1) 2) 3)
+\newcommand{\sub}[1]{\par\addvspace{6pt}\noindent{\solnsize\bfseries\color{skrpurple}#1)}\hspace{4pt}\ignorespaces}
+
+% กล่องคำตอบสุดท้าย
+\newcommand{\Ans}[1]{\par\addvspace{3pt}\noindent
+  \begin{tcolorbox}[colback=skrpurple!8, colframe=skrpurple!55, boxrule=0.6pt, arc=2pt,
+      left=8pt, right=8pt, top=4pt, bottom=4pt, boxsep=0pt, width=\linewidth,
+      before skip=3pt, after skip=6pt, sharp corners=downhill]
+    {\solnsize\color{skrink}\textbf{\color{skrpurple!85!black}ตอบ}\ \ #1}
+  \end{tcolorbox}\par}
+
+% หมายเหตุ/กับดัก — ใช้ให้น้อย เฉพาะจุดที่พลาดแล้วทำข้อนั้นไม่ได้
+\newcommand{\Trap}[1]{\par\addvspace{4pt}\noindent
+  {\smallsize\color{skrred}\textbf{กับดัก}\ \ \color{skrink}#1}\par\addvspace{3pt}}
+\newcommand{\Note}[1]{\par\addvspace{4pt}\noindent
+  {\smallsize\color{skrblue}\textbf{สังเกต}\ \ \color{skrink}#1}\par\addvspace{3pt}}
+
+% ---------- หัว/ท้ายกระดาษแบบชีท (สลับซ้าย-ขวาตามหน้าคู่/คี่) ----------
+\pagestyle{fancy}\fancyhf{}\renewcommand{\headrulewidth}{0pt}
+% สองบรรทัดนี้คือที่เดียวที่ต้อง \renewcommand ต่อเอกสาร
+\newcommand{\ipstband}{หนังสือเรียนรายวิชาเพิ่มเติม\ \ ชั้นมัธยมศึกษาปีที่ ?\ \ เล่ม ?}
+\newcommand{\ipstchaptag}{บทที่ ? $\vert$ ?}
+
+\fancyhead[C]{%
+ \begin{tikzpicture}[remember picture, overlay]
+  \pgfmathsetmacro{\PW}{595.276}\pgfmathsetmacro{\PH}{820.824}
+  \ifodd\value{page}
+    % ป้ายบทมุมขวาบน
+    \fill[skrtag]      ($(current page.north west)+(390pt,-34pt)$) rectangle ($(current page.north west)+(531pt,-62pt)$);
+    \node[anchor=east, text=skrred, font=\fontsize{13pt}{13pt}\selectfont\bfseries]
+         at ($(current page.north west)+(522pt,-48pt)$) {\ipstchaptag};
+    % แถบม่วง + กล่องเลขหน้าแดงชิดขวา
+    \fill[skrpurple]   ($(current page.north west)+(62pt,-62pt)$)  rectangle ($(current page.north west)+(506pt,-92pt)$);
+    \fill[skrred]      ($(current page.north west)+(506pt,-62pt)$) rectangle ($(current page.north west)+(553pt,-92pt)$);
+    \node[anchor=east, text=white, font=\fontsize{11.5pt}{11.5pt}\selectfont\bfseries]
+         at ($(current page.north west)+(500pt,-77pt)$) {\ipstband};
+    \node[text=white, font=\fontsize{12pt}{12pt}\selectfont\bfseries]
+         at ($(current page.north west)+(529.5pt,-77pt)$) {\thepage};
+    % ฟุตเตอร์
+    \node[anchor=east, text=skrblue, font=\fontsize{11pt}{11pt}\selectfont\bfseries]
+         at ($(current page.south west)+(520pt,42pt)$) {สถาบันส่งเสริมการสอนวิทยาศาสตร์และเทคโนโลยี};
+    \fill[skrblue] ($(current page.south west)+(526pt,40.4pt)$) rectangle ($(current page.south west)+(553pt,41.6pt)$);
+    \fill[skrblue] ($(current page.south west)+(551.8pt,36pt)$) rectangle ($(current page.south west)+(553pt,46pt)$);
+  \else
+    \fill[skrtag]      ($(current page.north west)+(64pt,-34pt)$)  rectangle ($(current page.north west)+(205pt,-62pt)$);
+    \node[anchor=west, text=skrred, font=\fontsize{13pt}{13pt}\selectfont\bfseries]
+         at ($(current page.north west)+(73pt,-48pt)$) {\ipstchaptag};
+    \fill[skrred]      ($(current page.north west)+(42pt,-62pt)$)  rectangle ($(current page.north west)+(89pt,-92pt)$);
+    \fill[skrpurple]   ($(current page.north west)+(89pt,-62pt)$)  rectangle ($(current page.north west)+(533pt,-92pt)$);
+    \node[anchor=west, text=white, font=\fontsize{11.5pt}{11.5pt}\selectfont\bfseries]
+         at ($(current page.north west)+(95pt,-77pt)$) {\ipstband};
+    \node[text=white, font=\fontsize{12pt}{12pt}\selectfont\bfseries]
+         at ($(current page.north west)+(65.5pt,-77pt)$) {\thepage};
+    \node[anchor=west, text=skrblue, font=\fontsize{11pt}{11pt}\selectfont\bfseries]
+         at ($(current page.south west)+(75pt,42pt)$) {สถาบันส่งเสริมการสอนวิทยาศาสตร์และเทคโนโลยี};
+    \fill[skrblue] ($(current page.south west)+(42pt,40.4pt)$) rectangle ($(current page.south west)+(69pt,41.6pt)$);
+    \fill[skrblue] ($(current page.south west)+(42pt,36pt)$)   rectangle ($(current page.south west)+(43.2pt,46pt)$);
+  \fi
+ \end{tikzpicture}}
+
+% ---------- กล่องเนื้อหาพื้นม่วงอ่อน (ต่อหน้าได้ จบตรงที่เนื้อหาจบ) ----------
+\newtcolorbox{sheetbox}{
+  breakable, enhanced, colback=skrlav, colframe=skrlav, boxrule=0pt, sharp corners,
+  left=16pt, right=16pt, top=14pt, bottom=14pt,
+  enlarge left by=-16pt, enlarge right by=-16pt, width=\dimexpr\linewidth+32pt\relax,
+  before skip=0pt, after skip=0pt, pad at break*=10pt }
+
+% ---------- แถบหัวเรื่องแบบ "แบบฝึกหัดท้ายบท" ----------
+\newcommand{\SectionBar}[1]{%
+  \par\noindent
+  \begin{tikzpicture}
+    \fill[skrpurple] (0,0) rectangle (\dimexpr\linewidth\relax, 30pt);
+    \node[anchor=west, text=white, font=\fontsize{17pt}{17pt}\selectfont\bfseries] at (13pt,15pt) {#1};
+  \end{tikzpicture}\par\addvspace{12pt}}

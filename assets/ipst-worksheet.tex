@@ -1,0 +1,60 @@
+% ============================================================
+%  ธีม สสวท -- ชั้นแบบฝึกหัด  --  assets/ipst-worksheet.tex
+%  เอาโจทย์จากชีทมาจัดใหม่ หนึ่งงานต่อหนึ่งหน้า พร้อมกรอบพื้นที่ทำ
+%  ต่อยอดจาก ipst-theme.tex -- input ไฟล์นี้แทน ipst-theme ได้เลย
+%
+%  วิธีใช้:
+%    \documentclass[12pt]{article}
+%    \input{ipst-worksheet}
+%    \renewcommand{\ipstchaptag}{...}  \renewcommand{\ipstband}{...}
+%    \begin{document}
+%      \WS{1}{ตัวโจทย์}              % หนึ่งการเรียก = หนึ่งหน้า
+%      \WS[3)]{7}{ตัวโจทย์}          % [..] = ป้ายข้อย่อย
+%    \end{document}
+% ============================================================
+\input{ipst-theme}
+
+% กล่องโจทย์: พื้นม่วงอ่อนเหมือนชีท ไม่ต่อหน้า
+\newtcolorbox{qbox}{
+  enhanced, colback=skrlav, colframe=skrlav, boxrule=0pt, sharp corners,
+  left=16pt, right=16pt, top=13pt, bottom=13pt,
+  enlarge left by=-16pt, enlarge right by=-16pt, width=\dimexpr\linewidth+32pt\relax,
+  before skip=0pt, after skip=0pt }
+
+% แถบอ้างอิงสิ่งที่โจทย์กำหนดไว้ตอนต้นข้อ (ย่อขนาด ไม่กินพื้นที่เขียน)
+\newcommand{\refstrip}[1]{%
+  \par\addvspace{6pt}
+  {\fontsize{12.5pt}{19pt}\selectfont\color{skrink}
+   \setlength{\arraycolsep}{3pt}%
+   \noindent\textbf{\color{skrpurple!80!black}โจทย์กำหนดให้}\ \ #1\par}
+  \addvspace{9pt}}
+
+\newsavebox{\wsq}
+\newlength{\wsfill}
+
+% \WS[ข้อย่อย]{เลขข้อ}{ตัวโจทย์}  — หนึ่งหน้าต่อหนึ่งการเรียก
+\newcommand{\WS}[3][]{%
+  \savebox{\wsq}{%
+    \begin{minipage}{\linewidth}
+      \begin{qbox}
+        \probsize\color{skrink}
+        \noindent\makebox[\qindent][l]{\qcircle{#2}}%
+        \begin{minipage}[t]{\dimexpr\linewidth-\qindent\relax}
+          \ifx\relax#1\relax\else
+            {\smallsize\bfseries\color{skrpurple!80!black}ข้อ #2 \ ข้อย่อย #1}\par\addvspace{5pt}
+          \fi
+          #3
+        \end{minipage}
+      \end{qbox}
+    \end{minipage}}%
+  \noindent\usebox{\wsq}\par
+  \addvspace{13pt}
+  \noindent{\solnsize\bfseries\color{skrpurple}วิธีทำ}\par
+  \addvspace{5pt}
+  % กรอบพื้นที่เขียน กินที่เหลือทั้งหมดของหน้า
+  \setlength{\wsfill}{\dimexpr\textheight-\ht\wsq-\dp\wsq-13pt-25pt-5pt-3pt\relax}
+  \noindent\begin{tikzpicture}
+    \draw[skrpurple!30, line width=0.7pt, sharp corners]
+         (-16pt,0pt) rectangle (\dimexpr\linewidth+16pt\relax, -\the\wsfill);
+  \end{tikzpicture}%
+  \newpage}

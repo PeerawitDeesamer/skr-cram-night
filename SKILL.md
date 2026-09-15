@@ -1,6 +1,6 @@
 ---
 name: "SKR Cram-Night Builder"
-description: "สร้างชุดบทเรียน + เฉลยแบบฝึกหัดจากชีทของครู สำหรับสอบในโรงเรียน (เคมี ชีวะ ฟิสิกส์ คณิต ม.ปลาย) เป็นหน้า HTML ที่เปิดจากไฟล์ได้ทุกเบราว์เซอร์ ภาษาไทย ศัพท์อังกฤษกำกับ วิชาวิทย์ต้องมีรูปประกอบทุกบท (ดึงจากสไลด์ครู หรือโหลดจากแหล่งที่เชื่อถือได้ ห้ามวาดเอง) ทุกตัวเลขคำนวณด้วย Python ก่อนเขียน. เน้นสีเฉพาะคำที่ตัดสินคำตอบ ไม่เกิน 10% ของหน้า. สไลด์ที่เรียงไม่เป็นลำดับสอนจะถูกจัดใหม่ก่อนเขียนบท. Use when studying for a Thai school test from a teacher's PDF sheet (ชีท) or slides, resequencing scattered slide content into a teachable order, building or updating lessons in ~/Documents/SKR/<Subject>/, pulling diagrams out of the teacher's slides into a lesson, highlighting the keywords that decide an answer, unlocking the sheet's own ตัวอย่าง/แบบฝึกหัด with hints and worked solutions, or recording a graded paper's wrong topics."
+description: "สร้างชุดบทเรียน + เฉลยแบบฝึกหัดจากชีทของครู สำหรับสอบในโรงเรียน (เคมี ชีวะ ฟิสิกส์ คณิต ม.ปลาย) เป็นหน้า HTML ที่เปิดจากไฟล์ได้ทุกเบราว์เซอร์ ภาษาไทย ศัพท์อังกฤษกำกับ วิชาวิทย์ต้องมีรูปประกอบทุกบท (ดึงจากสไลด์ครู หรือโหลดจากแหล่งที่เชื่อถือได้ ห้ามวาดเอง) ทุกตัวเลขคำนวณด้วย Python ก่อนเขียน. เน้นสีเฉพาะคำที่ตัดสินคำตอบ ไม่เกิน 10% ของหน้า. งานที่ส่งเป็น PDF (เฉลย หรือแบบฝึกหัดจัดใหม่ 1 ข้อ/หน้าให้มีพื้นที่เขียน) ใช้ "ธีม สสวท" ให้หน้าตาตรงกับหนังสือเรียน สสวท. ด้วย XeLaTeX + TH Sarabun New. สไลด์ที่เรียงไม่เป็นลำดับสอนจะถูกจัดใหม่ก่อนเขียนบท. Use when studying for a Thai school test from a teacher's PDF sheet (ชีท) or slides, resequencing scattered slide content into a teachable order, building or updating lessons in ~/Documents/SKR/<Subject>/, pulling diagrams out of the teacher's slides into a lesson, highlighting the keywords that decide an answer, unlocking the sheet's own ตัวอย่าง/แบบฝึกหัด with hints and worked solutions, recording a graded paper's wrong topics, or producing an answer-key / writing-space worksheet PDF in the IPST theme (ธีม สสวท) that matches the textbook's look."
 ---
 
 # SKR — ชุดบทเรียนคืนก่อนสอบ
@@ -67,6 +67,14 @@ description: "สร้างชุดบทเรียน + เฉลยแบ
     หรือ `<span>` สีในหัวข้อ) — `preflight.py` เตือน
     สองสีนี้เป็นโครงหน้า **ไม่นับในโควตาเน้นสี 10% ของกฎ 11**
     ([HIGHLIGHT.md](docs/HIGHLIGHT.md))
+13. **งานที่ส่งเป็น PDF ต้องใช้ธีม สสวท ห้ามจัดหน้าขึ้นใหม่เอง** เฉลยและแบบฝึกหัด
+    ที่ทำจากชีท ต้องวางต่อกับชีทต้นฉบับแล้วดูเป็นเล่มเดียวกัน — คืนก่อนสอบคนอ่าน
+    สลับชีทกับเฉลยสิบกว่ารอบ หน้าตาที่กระโดดทุกครั้งคือภาระที่ไม่จำเป็น
+    และเลขข้อที่อยู่ตำแหน่งเดิมทำให้ไล่หา "ข้อ 13 ข้อย่อย 4" เจอโดยไม่ต้องอ่าน
+    ธีมกำหนดสี หน้ากระดาษ หัว/ท้ายกระดาษ และขนาด (โจทย์ 18pt · วิธีทำ 16pt) ไว้แล้ว
+    **สีต้องดูดจากชีทเล่มนั้นจริง ๆ ห้ามใช้ค่าที่จำมา** เพราะแต่ละเล่มคนละโทน ·
+    **ห้ามย่อคำโจทย์ให้พอดีหน้า** คำที่ต่างจากเล่ม = ฝึกคนละโจทย์กับที่จะออกสอบ
+    ไม่พอหน้าให้เพิ่มหน้า ([IPST-THEME.md](docs/IPST-THEME.md))
 
 ## Environment
 
@@ -74,10 +82,12 @@ description: "สร้างชุดบทเรียน + เฉลยแบ
 |---|---|
 | ชีท + บทเรียนทั้งหมด | `~/Documents/SKR/<Subject>/` — Chemistry · Biology · Physics · Math |
 | assets กลาง (แก้ที่เดียว) | `~/.claude/skills/skr/assets/` → `install.sh` ก๊อปไปทุก workspace |
+| ธีม สสวท (งาน PDF) | `assets/ipst-theme.tex` + `assets/ipst-worksheet.tex` ([IPST-THEME.md](docs/IPST-THEME.md)) |
 | scripts | `~/.claude/skills/skr/scripts/` |
 | สไลด์ครู (ต้นทางรูป) | `~/Documents/SKR/<Subject>/Slides/` |
 | รูปของบทเรียน | `<workspace>/lessons/fig/` — ต้องอยู่ใน `lessons/` เท่านั้น |
 | Python | `python3` + `pymupdf` (อ่าน PDF · ตัดรูป) + `sympy` (ตรวจตัวเลข) |
+| XeLaTeX (เฉพาะงาน PDF) | TinyTeX + ฟอนต์ TH Sarabun New |
 
 เครื่องใหม่หรือของหาย: `bash ~/.claude/skills/skr/install.sh` (`--check` = ตรวจอย่างเดียว)
 
@@ -206,6 +216,11 @@ python3 ~/.claude/skills/skr/scripts/preflight.py --subject chem
 รูปไม่ถึงโควตา และชีวะที่ไม่มี `.where` = warning แต่ **ต้องบอกผู้ใช้ตรง ๆ
 ว่าบทไหนขาด** ไม่ใช่ปล่อยผ่านเงียบ ๆ
 
+**งาน PDF (ธีม สสวท) `preflight` ใช้ไม่ได้** มันเป็นตัวตรวจบทเรียน HTML ให้ตรวจแทนว่า
+รัน `xelatex` **ครบสองรอบ** (รอบเดียวแถบหัวหาย) · ไม่มีสมการล้นขอบกล่อง ·
+ฟอนต์ TH Sarabun ฝังครบทั้ง Regular และ Bold — สคริปต์ตรวจอยู่ใน
+[IPST-THEME.md](docs/IPST-THEME.md)
+
 ตอนจบต้องบอกผู้ใช้ด้วยว่า **หน้าไหนต้องใช้ตาดูเอง** (รูป สูตร เฉลย ตำแหน่งของชีวะ) —
 และต้อง **เปิดดูรูปที่ครอปหรือโหลดมาเองอย่างน้อยหนึ่งครั้ง** ก่อนส่ง
 ไม่มีสคริปต์ไหนบอกได้ว่าครอปติดรูปที่ถูกหรือรูปที่อยู่ข้าง ๆ
@@ -234,5 +249,6 @@ python3 ~/.claude/skills/skr/scripts/results.py add --subject chem \
 | [FIGURES.md](docs/FIGURES.md) | โควตารูปต่อบท · ดึงรูปจากสไลด์ · โหลดจากเน็ตให้ปลอดภัย · ที่มา |
 | [HIGHLIGHT.md](docs/HIGHLIGHT.md) | เน้นสี: ห้าชนิด · โควตา · สีหัวข้อ · ที่ที่ห้ามเน้นเพราะมันเฉลยให้ |
 | [WHERE.md](docs/WHERE.md) | ชีวะ: บล็อก "เกิดที่ไหน" · สร้างที่ vs ออกฤทธิ์ที่ |
+| [IPST-THEME.md](docs/IPST-THEME.md) | ธีม สสวท: สีที่ต้องดูดจากชีท · มาโคร · แบ่งหน้าแบบฝึกหัด · กับดัก LaTeX |
 | [RESULTS.md](docs/RESULTS.md) | บันทึกผลสอบ และการถ่วงน้ำหนักอัตโนมัติ |
 | [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | กับดัก `file://` ภาษาไทยเพี้ยน ควิซไม่ทำงาน |
