@@ -1,4 +1,4 @@
-> **Moved to [PeerawitDeesamer/claude-skills](https://github.com/PeerawitDeesamer/claude-skills).** This repo is kept for old links and is no longer updated.
+> **Moved to [PeerawitDeesamer/productivity-skill](https://github.com/PeerawitDeesamer/productivity-skill).** This repo is kept for old links and is no longer updated.
 
 # skr — a cram-night lesson builder
 
